@@ -1,26 +1,84 @@
 @import "tailwindcss";
 
+/* Design tokens (dark by default to match the mock) */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0b1220; /* deep navy */
+  --foreground: #e6edf3; /* light text */
+  --muted: #a6b3c2; /* secondary text */
+  --card: #0f1a2e; /* surface for cards */
+  --card-2: #0c1626; /* subtle surface */
+  --border: #1f2a40; /* soft borders */
+  --accent: #f4b740; /* amber/yellow CTA */
+  --accent-press: #d49a2d;
+  /* Section bands */
+  --band-1: #0b1220; /* base */
+  --band-2: #0e182a; /* slightly lighter */
+  --band-3: #0a1425; /* slightly darker */
+  --band-4: #0f1d34; /* alt */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-card: var(--card);
+  --color-card-2: var(--card-2);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-press: var(--accent-press);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Base */
+html, body {
+  height: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Reusable helpers matching the mock spacing and containers */
+.container-app {
+  @apply mx-auto px-4 sm:px-6 lg:px-8;
+  max-width: 1280px;
+}
+
+.card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  @apply rounded-xl;
+}
+
+.card-soft {
+  background-color: var(--card-2);
+  border: 1px solid var(--border);
+  @apply rounded-xl;
+}
+
+.btn-accent {
+  background-color: var(--accent);
+  color: #1a1a1a;
+  @apply font-medium rounded-lg inline-flex items-center justify-center transition-colors;
+}
+
+.btn-accent:hover {
+  background-color: var(--accent-press);
+}
+
+.text-muted { color: var(--muted); }
+
+/* Section band helpers */
+.section-band {
+  @apply -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 rounded-none;
+  padding-top: 3rem; /* ~py-12 para más aire */
+  padding-bottom: 3rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.band-1 { background-color: var(--band-1); }
+.band-2 { background-color: var(--band-2); }
+.band-3 { background-color: var(--band-3); }
+.band-4 { background-color: var(--band-4); }
