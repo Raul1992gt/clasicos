@@ -1,10 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function AdminLoginPage() {
+  return (
+    <Suspense>
+      <AdminLoginInner />
+    </Suspense>
+  );
+}
+
+function AdminLoginInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export const runtime = "nodejs";
-export const revalidate = 300; // 5 minutos para eventos pasados
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
