@@ -12,30 +12,12 @@ export async function POST(req: NextRequest) {
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_PASSWORD;
 
-    console.log("[ADMIN LOGIN] email len:", email.length, "adminEmail len:", adminEmail?.length ?? 0);
-    console.log("[ADMIN LOGIN] password len:", password.length, "adminPassword len:", adminPassword?.length ?? 0);
-
     if (!adminEmail || !adminPassword) {
       return NextResponse.json({ error: "Configuración de admin incompleta" }, { status: 500 });
     }
 
     if (email !== adminEmail || password !== adminPassword) {
-      return NextResponse.json(
-        {
-          error: "Credenciales inválidas",
-          // Info de depuración (solo longitudes, sin valores reales)
-          debug:
-            process.env.NODE_ENV === "production"
-              ? {
-                  emailLen: email.length,
-                  adminEmailLen: adminEmail.length,
-                  passwordLen: password.length,
-                  adminPasswordLen: adminPassword.length,
-                }
-              : undefined,
-        },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: "Credenciales inválidas" }, { status: 401 });
     }
 
     const token = createAdminSessionToken(email);
