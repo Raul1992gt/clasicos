@@ -7,7 +7,8 @@ export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const isAdminRoute = pathname.startsWith("/admin") && !pathname.startsWith("/admin/login");
-  const isAdminApi = pathname.startsWith("/api/admin");
+  const isAdminLoginApi = pathname === "/api/admin/login";
+  const isAdminApi = pathname.startsWith("/api/admin") && !isAdminLoginApi;
 
   if (!isAdminRoute && !isAdminApi) {
     return NextResponse.next();
