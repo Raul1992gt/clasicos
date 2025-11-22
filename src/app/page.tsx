@@ -34,8 +34,26 @@ export default function Home() {
   }) {
     const title = ev.title;
     const desc = ev.description ?? "";
-    let imgs: string[] = [];
+    let imgs: string[] = []; // EventImage
+    let extraFromRegistrations: string[] = []; // inscritos
 
+    // Primero intentamos cargar imágenes específicas del evento (EventImage)
+    try {
+      const res = await fetch(`/api/events/${encodeURIComponent(ev.id)}/images`, {
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const items = Array.isArray(data.items) ? data.items : [];
+        imgs = items
+          .map((img: any) => img.url as string | null | undefined)
+          .filter((u: unknown): u is string => typeof u === "string" && u.length > 0);
+      }
+    } catch {
+      // ignoramos errores aquí, haremos fallback abajo
+    }
+
+    // Siempre añadimos también las fotos de inscritos, para combinarlas
     try {
       const res = await fetch(`/api/registrations?eventId=${encodeURIComponent(ev.id)}&page=1&pageSize=100`, {
         cache: "no-store",
@@ -43,14 +61,32 @@ export default function Home() {
       if (res.ok) {
         const data = await res.json();
         const items = Array.isArray(data.items) ? data.items : [];
-        imgs = items
+        extraFromRegistrations = items
           .map((r: any) => r.imagen_url as string | null | undefined)
           .filter((u: unknown): u is string => typeof u === "string" && u.length > 0);
       }
     } catch {
     }
 
-    setPastEvent({ title, description: desc, gallery: imgs });
+    // Quitar duplicados dentro de cada grupo y entre ambos
+    const seen = new Set<string>();
+    const galleryEvent: string[] = [];
+    const galleryRegistrations: string[] = [];
+
+    for (const url of imgs) {
+      if (!seen.has(url)) {
+        seen.add(url);
+        galleryEvent.push(url);
+      }
+    }
+    for (const url of extraFromRegistrations) {
+      if (!seen.has(url)) {
+        seen.add(url);
+        galleryRegistrations.push(url);
+      }
+    }
+
+    setPastEvent({ title, description: desc, galleryEvent, galleryRegistrations });
     setPastOpen(true);
   }
 

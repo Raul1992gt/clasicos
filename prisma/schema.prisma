@@ -9,18 +9,29 @@ datasource db {
 }
 
 model Event {
-  id           String          @id @default(uuid())
-  title        String
-  description  String?
-  startAt      DateTime
-  endAt        DateTime?
-  isPublished  Boolean         @default(true)
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  id                  String          @id @default(uuid())
+  title               String
+  description         String?
+  startAt             DateTime
+  endAt               DateTime?
+  isPublished         Boolean         @default(true)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
   imagen_principal_url String?
-  registrations Registration[]
+  registrations       Registration[]
+  images              EventImage[]
 
   @@index([startAt])
+}
+
+model EventImage {
+  id        String   @id @default(uuid())
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId   String
+  url       String
+  createdAt DateTime @default(now())
+
+  @@index([eventId])
 }
 
 model Registration {

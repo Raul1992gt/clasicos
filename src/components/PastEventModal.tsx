@@ -5,7 +5,8 @@ import { useEffect } from "react";
 export interface PastEventDetails {
   title: string;
   description: string;
-  gallery: string[];
+  galleryEvent: string[]; // imágenes del evento (EventImage)
+  galleryRegistrations: string[]; // imágenes de inscritos
 }
 
 interface Props {
@@ -41,13 +42,31 @@ export default function PastEventModal({ open, onClose, event }: Props) {
               </button>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              {event.gallery.map((src) => (
-                <div key={src} className="relative aspect-[4/3] w-full overflow-hidden rounded">
-                  <Image src={src} alt={event.title} fill className="object-cover" />
+            {event.galleryEvent.length > 0 && (
+              <div className="space-y-2 mb-4">
+                <h4 className="font-medium text-sm">Fotos del evento</h4>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {event.galleryEvent.map((src) => (
+                    <div key={src} className="relative aspect-[4/3] w-full overflow-hidden rounded">
+                      <Image src={src} alt={event.title} fill className="object-cover" />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
+
+            {event.galleryRegistrations.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm">Fotos de inscritos</h4>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {event.galleryRegistrations.map((src) => (
+                    <div key={src} className="relative aspect-[4/3] w-full overflow-hidden rounded">
+                      <Image src={src} alt={event.title} fill className="object-cover" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

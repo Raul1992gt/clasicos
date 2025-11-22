@@ -24,6 +24,7 @@ export default function AdminEvents() {
   const [editing, setEditing] = useState<AdminEventItem | null>(null);
   const [creating, setCreating] = useState(false);
   const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
+  const [galleryEvent, setGalleryEvent] = useState<AdminEventItem | null>(null);
 
   async function load() {
     try {
@@ -323,6 +324,14 @@ export default function AdminEvents() {
                         >
                           Editar
                         </button>
+                        <button
+                          type="button"
+                          className="border rounded px-2 py-1"
+                          style={{ borderColor: "var(--border)" }}
+                          onClick={() => setGalleryEvent(ev)}
+                        >
+                          Galería
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -349,6 +358,12 @@ export default function AdminEvents() {
             setCreating(false);
             await load();
           }}
+        />
+      )}
+      {galleryEvent && (
+        <EventImagesModal
+          event={galleryEvent}
+          onClose={() => setGalleryEvent(null)}
         />
       )}
     </section>
@@ -668,6 +683,157 @@ function CreateEventModal({ onClose, onCreated }: CreateEventModalProps) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface EventImagesModalProps {
+  event: AdminEventItem;
+  onClose: () => void;
+}
+
+function EventImagesModal({ event, onClose }: EventImagesModalProps) {
+  const [images, setImages] = useState<{ id: string; url: string }[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function loadImages() {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`/api/admin/events/${event.id}/images`, { cache: "no-store" });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error || "No se pudieron cargar las imágenes");
+      }
+      setImages(Array.isArray(data.items) ? data.items : []);
+    } catch (err: any) {
+      setError(err?.message || "Error inesperado");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    void loadImages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [event.id]);
+
+  async function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploading(true);
+      setError(null);
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch(`/api/admin/events/${event.id}/images`, {
+        method: "POST",
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error || "No se pudo subir la imagen");
+      }
+      await loadImages();
+    } catch (err: any) {
+      setError(err?.message || "Error inesperado");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  }
+
+  async function onDelete(imageId: string) {
+    try {
+      setError(null);
+      const res = await fetch(`/api/admin/events/images/${imageId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error || "No se pudo eliminar la imagen");
+      }
+      setImages((prev) => prev.filter((img) => img.id !== imageId));
+    } catch (err: any) {
+      setError(err?.message || "Error inesperado");
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-[120]">
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} aria-hidden />
+      <div className="absolute inset-0 overflow-auto">
+        <div className="container-app py-8 max-w-xl mx-auto">
+          <div className="card p-6 space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold">Galería de imágenes</h2>
+              <button
+                type="button"
+                className="border rounded-lg px-3 py-1.5 text-sm"
+                style={{ borderColor: "var(--border)" }}
+                onClick={onClose}
+              >
+                Cerrar
+              </button>
+            </div>
+
+            <p className="text-xs text-muted">Evento: {event.title}</p>
+
+            <div className="grid gap-2">
+              <span className="text-xs text-muted">Añadir imagen a la galería</span>
+              <label
+                className="border rounded-lg px-3 py-2 text-sm cursor-pointer w-fit"
+                style={{ borderColor: "var(--border)" }}
+              >
+                {uploading ? "Subiendo..." : "Seleccionar imagen"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={onUpload}
+                  disabled={uploading}
+                />
+              </label>
+            </div>
+
+            {error && <p className="text-xs text-red-500">{error}</p>}
+
+            {loading ? (
+              <p className="text-xs text-muted">Cargando imágenes...</p>
+            ) : images.length === 0 ? (
+              <p className="text-xs text-muted">Este evento no tiene imágenes en la galería.</p>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-3">
+                {images.map((img) => (
+                  <div key={img.id} className="space-y-1 text-xs">
+                    <a
+                      href={img.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block relative aspect-[4/3] w-full overflow-hidden rounded border"
+                      style={{ borderColor: "var(--border)" }}
+                    >
+                      <img src={img.url} alt="Imagen de evento" className="h-full w-full object-cover" />
+                    </a>
+                    <div className="flex justify-end items-center gap-2">
+                      <button
+                        type="button"
+                        className="border rounded px-2 py-0.5"
+                        style={{ borderColor: "var(--border)" }}
+                        onClick={() => void onDelete(img.id)}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
