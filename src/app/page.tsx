@@ -1,12 +1,13 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RegisterForm from "@/components/RegisterForm";
 import AttendeesGrid from "@/components/AttendeesGrid";
 import EventDetailsModal, { type EventDetails } from "@/components/EventDetailsModal";
 import PastEventModal, { type PastEventDetails } from "@/components/PastEventModal";
 import Lightbox from "@/components/Lightbox";
+import LatestEvent from "@/components/LatestEvent";
 
 export default function Home() {
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -16,6 +17,91 @@ export default function Home() {
   const [detailsEvent, setDetailsEvent] = useState<EventDetails | undefined>(undefined);
   const [pastOpen, setPastOpen] = useState(false);
   const [pastEvent, setPastEvent] = useState<PastEventDetails | undefined>(undefined);
+  const [attendeesItems, setAttendeesItems] = useState<{ src: string; title: string; meta: string }[]>([]);
+  const [attendeesLoading, setAttendeesLoading] = useState(true);
+  const [attendeesError, setAttendeesError] = useState<string | null>(null);
+  const [pastItems, setPastItems] = useState<
+    { id: string; title: string; description?: string | null; endAt?: string | null; imagen_principal_url?: string | null }[]
+  >([]);
+  const [pastLoading, setPastLoading] = useState(true);
+  const [pastError, setPastError] = useState<string | null>(null);
+
+  async function openPastEventDetails(ev: {
+    id: string;
+    title: string;
+    description?: string | null;
+  }) {
+    const title = ev.title;
+    const desc = ev.description ?? "";
+    let imgs: string[] = [];
+
+    try {
+      const res = await fetch(`/api/registrations?eventId=${encodeURIComponent(ev.id)}&page=1&pageSize=100`, {
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const items = Array.isArray(data.items) ? data.items : [];
+        imgs = items
+          .map((r: any) => r.imagen_url as string | null | undefined)
+          .filter((u: unknown): u is string => typeof u === "string" && u.length > 0);
+      }
+    } catch {
+    }
+
+    setPastEvent({ title, description: desc, gallery: imgs });
+    setPastOpen(true);
+  }
+
+  // Cargar inscritos del evento actual
+  async function loadAttendees() {
+    try {
+      setAttendeesLoading(true);
+      const res = await fetch("/api/registrations/current", { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const items = Array.isArray(data.items) ? data.items : [];
+      const mapped = items.map((r: any) => ({
+        src: r.imagen_url || undefined,
+        title: r.name || "Inscrito",
+        meta: r.modelo_coche || r.email || "",
+      }));
+      setAttendeesItems(mapped);
+      setAttendeesError(null);
+    } catch (e: any) {
+      setAttendeesError("No se pudieron cargar los inscritos");
+    } finally {
+      setAttendeesLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    void loadAttendees();
+  }, []);
+
+  // Cargar eventos pasados
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        setPastLoading(true);
+        const res = await fetch("/api/events/past?page=1&pageSize=8", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!active) return;
+        const items = Array.isArray(data.items) ? data.items : [];
+        setPastItems(items);
+        setPastError(null);
+      } catch (e: any) {
+        if (active) setPastError("No se pudieron cargar los eventos pasados");
+      } finally {
+        if (active) setPastLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
   return (
     <div className="space-y-14">
       {/* Hero */}
@@ -74,109 +160,28 @@ export default function Home() {
       <section id="eventos" className="section-band band-3 space-y-8">
         {/* Fila principal: destacado + registro */}
         <div className="grid gap-7 lg:gap-10 md:grid-cols-2">
-          {/* Mini hero destacado */}
-          <div className="card p-6 lg:p-8 flex flex-col gap-5">
-            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
-              <Image src="/images/clasico.jpg" alt="Ruta Costera" fill className="object-cover" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-lg font-semibold">Quedada clásicos</h3>
-              <p className="text-muted text-sm">
-                Sábado 9 de octubre — Punto de encuentro: Paseo del puerto — 70km
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setDetailsEvent({
-                    title: "Quedada clásicos",
-                    subtitle: "Sábado 9 de octubre · 07:00 · Paseo del puerto",
-                    cover: "/images/clasico.jpg",
-                    meetingTitle: "Punto de Encuentro",
-                    meetingTime: "07:00",
-                    meetingImage: "/images/reunion1.jpg",
-                    gallery: ["/images/clio.jpg", "/images/bmw1.jpg", "/images/corrado.jpg"],
-                    stats: { checkin: "06:30 · Salida 07:00", distance: "70 km", weather: "Despejado", parking: "Vigilado" },
-                    stops: [
-                      { name: "Mirador costero", km: "Km 24" },
-                      { name: "Faro", km: "Km 40" },
-                      { name: "Chiringuito", km: "Km 58" },
-                    ],
-                    quota: { available: 12, enrolled: 28 },
-                  });
-                  setDetailsOpen(true);
-                }}
-                className="btn-accent px-4 py-2 text-sm" style={{ borderColor: "var(--border)" }}
-              >
-                Ver detalles
-              </button>
-            </div>
-          </div>
+          {/* Destacado dinámico del próximo evento o fallback */}
+          <LatestEvent instagramUrl="#" />
 
           {/* Formulario registro */}
           <div id="registro" className="card p-6 lg:p-7">
             <h3 className="text-lg font-semibold mb-6">Nuevo Registro</h3>
-            <RegisterForm />
+            <RegisterForm onRegistered={loadAttendees} />
           </div>
         </div>
 
         {/* Inscritos (fila completa debajo) */}
         <div className="mt-8 card p-8 lg:p-10">
           <h3 className="text-lg font-semibold mb-6">Inscritos al Próximo Evento</h3>
-          {(() => {
-            const attendees = [
-              { src: "/images/corrado.jpg", title: "Piloto 1", meta: "Corrado" },
-              { src: "/images/bmw1.jpg", title: "Piloto 2", meta: "BMW" },
-              { src: "/images/clio.jpg", title: "Piloto 3", meta: "Clio" },
-              { src: "/images/corrado.jpg", title: "Piloto 1", meta: "Corrado" },
-              { src: "/images/bmw1.jpg", title: "Piloto 2", meta: "BMW" },
-              { src: "/images/clio.jpg", title: "Piloto 3", meta: "Clio" },
-              { src: "/images/corrado.jpg", title: "Piloto 4", meta: "Corrado" },
-              { src: "/images/bmw1.jpg", title: "Piloto 5", meta: "BMW" },
-              { src: "/images/corrado.jpg", title: "Piloto 1", meta: "Corrado" },
-              { src: "/images/bmw1.jpg", title: "Piloto 2", meta: "BMW" },
-              { src: "/images/clio.jpg", title: "Piloto 3", meta: "Clio" },
-              { src: "/images/corrado.jpg", title: "Piloto 1", meta: "Corrado" },
-              { src: "/images/bmw1.jpg", title: "Piloto 2", meta: "BMW" },
-              { src: "/images/clio.jpg", title: "Piloto 3", meta: "Clio" },
-              { src: "/images/corrado.jpg", title: "Piloto 4", meta: "Corrado" },
-              { src: "/images/bmw1.jpg", title: "Piloto 5", meta: "BMW" },
-              { src: "/images/clio.jpg", title: "Piloto 6", meta: "Clio" },
-              { src: "/images/corrado.jpg", title: "Piloto 7", meta: "Corrado" },
-              { src: "/images/bmw1.jpg", title: "Piloto 8", meta: "BMW" },
-              { src: "/images/clio.jpg", title: "Piloto 9", meta: "Clio" },
-              { src: "/images/corrado.jpg", title: "Piloto 10", meta: "Corrado" },
-              { src: "/images/bmw1.jpg", title: "Piloto 11", meta: "BMW" },
-              { src: "/images/clio.jpg", title: "Piloto 12", meta: "Clio" },
-              { src: "/images/corrado.jpg", title: "Piloto 13", meta: "Corrado" },
-              { src: "/images/bmw1.jpg", title: "Piloto 14", meta: "BMW" },
-              { src: "/images/clio.jpg", title: "Piloto 15", meta: "Clio" },
-              { src: "/images/corrado.jpg", title: "Piloto 16", meta: "Corrado" },
-              { src: "/images/bmw1.jpg", title: "Piloto 17", meta: "BMW" },
-              { src: "/images/clio.jpg", title: "Piloto 18", meta: "Clio" },
-              { src: "/images/corrado.jpg", title: "Piloto 19", meta: "Corrado" },
-              { src: "/images/bmw1.jpg", title: "Piloto 20", meta: "BMW" },
-              { src: "/images/clio.jpg", title: "Piloto 21", meta: "Clio" },
-              { src: "/images/corrado.jpg", title: "Piloto 22", meta: "Corrado" },
-              { src: "/images/bmw1.jpg", title: "Piloto 23", meta: "BMW" },
-              { src: "/images/clio.jpg", title: "Piloto 24", meta: "Clio" },
-              { src: "/images/corrado.jpg", title: "Piloto 25", meta: "Corrado" },
-              { src: "/images/bmw1.jpg", title: "Piloto 26", meta: "BMW" },
-              { src: "/images/clio.jpg", title: "Piloto 27", meta: "Clio" },
-              { src: "/images/corrado.jpg", title: "Piloto 28", meta: "Corrado" },
-              { src: "/images/bmw1.jpg", title: "Piloto 29", meta: "BMW" },
-              { src: "/images/clio.jpg", title: "Piloto 30", meta: "Clio" },
-            ];
-            const limit = 24; // mostrar 24 inicialmente; botón "Ver más" carga +24
-            return (
-              <AttendeesGrid
-                items={attendees}
-                initialVisible={limit}
-                maxColumns={4}
-                showMore={true}
-              />
-            );
-          })()}
+          {attendeesLoading ? (
+            <div className="text-sm text-muted">Cargando inscritos...</div>
+          ) : attendeesError ? (
+            <div className="text-sm text-muted">{attendeesError}</div>
+          ) : attendeesItems.length === 0 ? (
+            <div className="text-sm text-muted">No hay inscritos para el próximo evento</div>
+          ) : (
+            <AttendeesGrid items={attendeesItems} initialVisible={24} maxColumns={4} showMore={true} />
+          )}
         </div>
       </section>
 
@@ -184,50 +189,41 @@ export default function Home() {
       <section id="pasados" className="section-band band-4 space-y-6">
         <h3 className="text-lg font-semibold mb-6">Eventos pasados</h3>
         <div className="grid gap-8 md:grid-cols-2">
-          {[
-            {
-              title: "Clásicos en la Plaza — Agosto 2025",
-              desc: "Exhibición urbana con música, puestos y rutas cortas por el centro.",
-              imgs: ["/images/reunion1.jpg", "/images/bmw.jpg", "/images/clasico2.jpg"],
-            },
-            {
-              title: "Ruta de Montaña — Junio 2025",
-              desc: "Puertos y miradores. 120km de curvas con radares de foto.",
-              imgs: ["/images/clasico1.jpg", "/images/principal.jpg", "/images/corrado.jpg"],
-            },
-          ].map((card) => (
-            <article key={card.title} className="card p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">{card.title}</h3>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPastEvent({ title: card.title, description: card.desc, gallery: card.imgs });
-                    setPastOpen(true);
-                  }}
-                  className="text-sm text-muted hover:text-foreground underline-offset-4 hover:underline"
-                >
-                  Detalles
-                </button>
-              </div>
-              <p className="text-muted text-sm">{card.desc}</p>
-              <div className="grid grid-cols-3 gap-2">
-                {card.imgs.map((src, idx) => (
-                  <button
-                    key={src}
-                    className="relative aspect-[4/3] w-full overflow-hidden rounded focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)]"
-                    onClick={() => {
-                      setLightboxImages(card.imgs.map((s) => ({ src: s, alt: card.title })));
-                      setLightboxIndex(idx);
-                      setLightboxOpen(true);
-                    }}
-                  >
-                    <Image src={src} alt={card.title} fill className="object-cover" />
-                  </button>
-                ))}
-              </div>
-            </article>
-          ))}
+          {pastLoading ? (
+            <div className="text-sm text-muted">Cargando eventos pasados...</div>
+          ) : pastError ? (
+            <div className="text-sm text-muted">{pastError}</div>
+          ) : pastItems.length === 0 ? (
+            <div className="text-sm text-muted">No hay eventos pasados</div>
+          ) : (
+            pastItems.map((ev) => {
+              const title = ev.title;
+              const desc = ev.description ?? "";
+              const mainImg = ev.imagen_principal_url ?? undefined;
+              return (
+                <article key={ev.id} className="card p-6 space-y-4">
+                  {mainImg && (
+                    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
+                      <Image src={mainImg} alt={title} fill className="object-cover" />
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">{title}</h3>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void openPastEventDetails(ev);
+                      }}
+                      className="text-sm text-muted hover:text-foreground underline-offset-4 hover:underline"
+                    >
+                      Detalles
+                    </button>
+                  </div>
+                  {desc ? <p className="text-muted text-sm">{desc}</p> : null}
+                </article>
+              );
+            })
+          )}
         </div>
       </section>
       {/* Lightbox gallery */}
