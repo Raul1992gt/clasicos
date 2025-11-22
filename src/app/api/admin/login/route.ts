@@ -20,7 +20,22 @@ export async function POST(req: NextRequest) {
     }
 
     if (email !== adminEmail || password !== adminPassword) {
-      return NextResponse.json({ error: "Credenciales inválidas" }, { status: 401 });
+      return NextResponse.json(
+        {
+          error: "Credenciales inválidas",
+          // Info de depuración (solo longitudes, sin valores reales)
+          debug:
+            process.env.NODE_ENV === "production"
+              ? {
+                  emailLen: email.length,
+                  adminEmailLen: adminEmail.length,
+                  passwordLen: password.length,
+                  adminPasswordLen: adminPassword.length,
+                }
+              : undefined,
+        },
+        { status: 401 },
+      );
     }
 
     const token = createAdminSessionToken(email);
