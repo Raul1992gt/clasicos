@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
 
@@ -86,8 +87,6 @@ export default function RegisterForm({ onRegistered }: RegisterFormProps) {
 
     try {
       setSubmitting(true);
-      let finalImageUrl: string | undefined;
-
       const fd = new FormData();
       fd.append("file", file);
 
@@ -102,7 +101,7 @@ export default function RegisterForm({ onRegistered }: RegisterFormProps) {
         throw new Error(msg);
       }
 
-      finalImageUrl = uploadData.url;
+      const finalImageUrl: string | undefined = uploadData.url;
 
       const payload = {
         eventId,

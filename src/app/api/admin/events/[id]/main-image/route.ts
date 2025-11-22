@@ -4,8 +4,9 @@ import { put, del } from "@vercel/blob";
 
 export const runtime = "nodejs";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const formData = await req.formData();
     const file = formData.get("file");
 
@@ -15,11 +16,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     // Obtener URL anterior para borrarla después
     const existing = await prisma.event.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: { imagen_principal_url: true },
     });
 
-    const filename = `event-${params.id}-${Date.now()}-${file.name}`;
+    const filename = `event-${id}-${Date.now()}-${file.name}`;
 
     const blob = await put(filename, file, {
       access: "public",
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     });
 
     const event = await prisma.event.update({
-      where: { id: params.id },
+      where: { id },
       data: { imagen_principal_url: blob.url },
     });
 

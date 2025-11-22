@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const body = await req.json();
     const { title, description, startAt, endAt, isPublished } = body ?? {};
 
@@ -20,7 +22,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
 
     const event = await prisma.event.update({
-      where: { id: params.id },
+      where: { id },
       data,
     });
 

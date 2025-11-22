@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-require-imports */
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 // Usamos la build standalone de pdfkit para evitar dependencias de fuentes en disco
 // Tipamos como any porque no hay tipos oficiales para este bundle
-// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-unsafe-assignment
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const PDFDocument: any = require("pdfkit/js/pdfkit.standalone.js");
 
 export const runtime = "nodejs";
