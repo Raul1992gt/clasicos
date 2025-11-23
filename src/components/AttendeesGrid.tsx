@@ -18,7 +18,7 @@ interface Props {
 
 export default function AttendeesGrid({
   items,
-  maxPerColumn = 9999, // no se usa en el modo fila-primero
+  maxPerColumn = 9999, // filas máximas por columna (equilibra columnas)
   maxColumns = 4,
   initialVisible = 24,
   showMore = true,
@@ -44,11 +44,17 @@ export default function AttendeesGrid({
 
   const cols = Math.max(1, Math.min(maxColumns, bpCols, list.length || 1));
 
+  const maxVisibleByColumns = maxPerColumn * cols;
+
+  const baseVisible = Math.min(initialVisible, maxVisibleByColumns || initialVisible);
+
   // Ajustar visible automáticamente al cambiar de breakpoint
   useEffect(() => {
-    const base = bpCols === 1 ? 6 : initialVisible; // móvil: 6, desktop: initialVisible
-    setVisible((v) => Math.min(Math.max(base, Math.min(v, items.length)), items.length));
-  }, [bpCols, items.length, initialVisible]);
+    const base = bpCols === 1 ? 6 : baseVisible; // móvil: 6, desktop: baseVisible
+    setVisible((v) =>
+      Math.min(Math.max(base, Math.min(v, items.length, maxVisibleByColumns || items.length)), items.length),
+    );
+  }, [bpCols, items.length, baseVisible, maxVisibleByColumns]);
 
   // Grid en modo fila-primero; en móvil no limitamos el ancho para que ocupe todo
   const colWidth = 340; // px aproximados por columna en >= sm
@@ -58,8 +64,6 @@ export default function AttendeesGrid({
     gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
     maxWidth: bpCols === 1 ? "100%" : `${maxWidthPx}px`,
   };
-
-  const baseVisible = initialVisible;
 
   // Condicionales de estilo para móvil 1-col
   const avatarClass = bpCols === 1 ? "w-24 h-24" : "w-12 h-12 sm:w-16 sm:h-16"; // móvil: 96px
@@ -92,12 +96,16 @@ export default function AttendeesGrid({
 
       {showMore && (
         <div className="flex justify-center gap-3">
-          {visible < items.length && (
+          {visible < Math.min(items.length, maxVisibleByColumns || items.length) && (
             <button
               type="button"
               className="border rounded-lg px-4 py-2 text-sm"
               style={{ borderColor: "var(--border)" }}
-              onClick={() => setVisible((v) => Math.min(v + (bpCols === 1 ? 6 : 24), items.length))}
+              onClick={() =>
+                setVisible((v) =>
+                  Math.min(v + (bpCols === 1 ? 6 : 24), items.length, maxVisibleByColumns || items.length),
+                )
+              }
             >
               Ver más ({Math.max(0, items.length - visible)} más)
             </button>

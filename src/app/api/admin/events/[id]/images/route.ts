@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { put, del } from "@vercel/blob";
+import { put } from "@vercel/blob";
 
 export const runtime = "nodejs";
 

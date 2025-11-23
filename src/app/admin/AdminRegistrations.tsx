@@ -517,7 +517,7 @@ function ConfirmDeleteRegistrationModal({ item, onCancel, onDeleted }: ConfirmDe
           <div className="card p-6 space-y-4">
             <h2 className="text-lg font-semibold">Eliminar inscrito</h2>
             <p className="text-sm text-muted">
-              ¿Seguro que quieres eliminar el registro "{item.name}"?
+              ¿Seguro que quieres eliminar el registro &quot;{item.name}&quot;?
             </p>
             {error && <p className="text-xs text-red-500">{error}</p>}
             <div className="flex justify-end gap-2 pt-2">

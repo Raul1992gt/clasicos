@@ -27,7 +27,7 @@ export default function LatestEvent({ instagramUrl = "#" }: { instagramUrl?: str
         const data = await res.json();
         if (!active) return;
         setEvent(data.event ?? null);
-      } catch (e: any) {
+      } catch (_err: any) {
         setError("No se pudo cargar el evento");
       } finally {
         if (active) setLoading(false);

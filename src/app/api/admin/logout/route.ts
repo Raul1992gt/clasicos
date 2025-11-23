@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { SESSION_COOKIE_NAME } from "@/lib/adminAuth";
 
 export const runtime = "nodejs";
 
-export async function POST(_req: NextRequest) {
+export async function POST() {
   try {
     const res = NextResponse.json({ ok: true });
     res.cookies.set(SESSION_COOKIE_NAME, "", {

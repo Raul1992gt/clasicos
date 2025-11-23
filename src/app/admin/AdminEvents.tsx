@@ -2,7 +2,8 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
 interface AdminEventItem {
   id: string;
@@ -824,7 +825,7 @@ function EventImagesModal({ event, onClose }: EventImagesModalProps) {
                       className="block relative aspect-[4/3] w-full overflow-hidden rounded border"
                       style={{ borderColor: "var(--border)" }}
                     >
-                      <img src={img.url} alt="Imagen de evento" className="h-full w-full object-cover" />
+                      <Image src={img.url} alt="Imagen de evento" fill className="object-cover" />
                     </a>
                     <div className="flex justify-end items-center gap-2">
                       <button
@@ -884,7 +885,7 @@ function ConfirmDeleteEventModal({ event, onCancel, onDeleted }: ConfirmDeleteEv
           <div className="card p-6 space-y-4">
             <h2 className="text-lg font-semibold">Eliminar evento</h2>
             <p className="text-sm">
-              ¿Seguro que quieres eliminar el evento "{event.title}"? Esta acción no se puede deshacer.
+              ¿Seguro que quieres eliminar el evento &quot;{event.title}&quot;? Esta acción no se puede deshacer.
             </p>
             {error && <p className="text-xs text-red-500">{error}</p>}
             <div className="flex justify-end gap-2 pt-2">

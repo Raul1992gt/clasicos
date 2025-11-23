@@ -14,9 +14,9 @@ import RevealOnScroll from "@/components/RevealOnScroll";
 export default function Home() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxImages, setLightboxImages] = useState<{ src: string; alt?: string }[]>([]);
+  const [lightboxImages] = useState<{ src: string; alt?: string }[]>([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-  const [detailsEvent, setDetailsEvent] = useState<EventDetails | undefined>(undefined);
+  const [detailsEvent] = useState<EventDetails | undefined>(undefined);
   const [pastOpen, setPastOpen] = useState(false);
   const [pastEvent, setPastEvent] = useState<PastEventDetails | undefined>(undefined);
   const [attendeesItems, setAttendeesItems] = useState<{ src: string; title: string; meta: string }[]>([]);
@@ -143,7 +143,7 @@ export default function Home() {
       setCurrentRegistrationsTotal(total);
       setCurrentMaxRegistrations(maxRegs);
       setAttendeesError(null);
-    } catch (e: any) {
+    } catch (_err: any) {
       setAttendeesError("No se pudieron cargar los inscritos");
     } finally {
       setAttendeesLoading(false);
@@ -170,7 +170,7 @@ export default function Home() {
         const items = Array.isArray(data.items) ? data.items : [];
         setPastItems(items);
         setPastError(null);
-      } catch (e: any) {
+      } catch (_err: any) {
         if (active) setPastError("No se pudieron cargar los eventos pasados");
       } finally {
         if (active) setPastLoading(false);
