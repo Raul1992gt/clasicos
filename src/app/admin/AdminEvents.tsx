@@ -19,9 +19,6 @@ export default function AdminEvents() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [title, setTitle] = useState("");
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [targetEventId, setTargetEventId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editing, setEditing] = useState<AdminEventItem | null>(null);
   const [creating, setCreating] = useState(false);
@@ -137,40 +134,6 @@ export default function AdminEvents() {
     });
   }
 
-  function triggerFileDialog(eventId: string) {
-    setTargetEventId(eventId);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-      fileInputRef.current.click();
-    }
-  }
-
-  async function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    const eventId = targetEventId;
-    if (!file || !eventId) return;
-    try {
-      setUpdatingId(eventId);
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch(`/api/admin/events/${eventId}/main-image`, {
-        method: "POST",
-        body: fd,
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.error || "No se pudo actualizar la imagen");
-      }
-      // Refrescar lista para ver la nueva imagen
-      await load();
-    } catch (err: any) {
-      alert(err?.message || "Error actualizando la imagen");
-    } finally {
-      setUpdatingId(null);
-      setTargetEventId(null);
-    }
-  }
-
   return (
     <section className="card p-6 space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -240,14 +203,6 @@ export default function AdminEvents() {
           </button>
         </div>
       </form>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={onFileChange}
-        className="hidden"
-      />
 
       {loading && items.length === 0 ? (
         <p className="text-sm text-muted">Cargando eventos...</p>
