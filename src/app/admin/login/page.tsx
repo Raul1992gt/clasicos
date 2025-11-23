@@ -44,13 +44,13 @@ function AdminLoginInner() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-50">
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--background)", color: "var(--foreground)" }}>
       <div className="w-full max-w-sm card p-6 space-y-4">
         <h1 className="text-lg font-semibold">Acceso administrador</h1>
         <form onSubmit={onSubmit} className="space-y-3">
           <input
             type="email"
-            className="bg-transparent border rounded-lg px-3 py-2 w-full"
+            className="bg-white border rounded-lg px-3 py-2 w-full"
             placeholder="Email administrador"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -58,7 +58,7 @@ function AdminLoginInner() {
           />
           <input
             type="password"
-            className="bg-transparent border rounded-lg px-3 py-2 w-full"
+            className="bg-white border rounded-lg px-3 py-2 w-full"
             placeholder="Contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

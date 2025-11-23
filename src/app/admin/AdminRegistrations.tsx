@@ -38,17 +38,18 @@ export default function AdminRegistrations() {
   const [editMatricula, setEditMatricula] = useState("");
   const [editNotas, setEditNotas] = useState("");
   const [editImageUploading, setEditImageUploading] = useState(false);
+  const [deleting, setDeleting] = useState<RegistrationItem | null>(null);
 
-  async function load() {
+  async function loadWithFilters(targetPage: number, targetEventTitle: string, targetEmail: string, targetDni: string) {
     try {
       setLoading(true);
       setError(null);
       const params = new URLSearchParams();
-      params.set("page", String(page));
+      params.set("page", String(targetPage));
       params.set("pageSize", String(pageSize));
-      if (eventTitle.trim()) params.set("eventTitle", eventTitle.trim());
-      if (email.trim()) params.set("email", email.trim());
-      if (dni.trim()) params.set("dni", dni.trim());
+      if (targetEventTitle.trim()) params.set("eventTitle", targetEventTitle.trim());
+      if (targetEmail.trim()) params.set("email", targetEmail.trim());
+      if (targetDni.trim()) params.set("dni", targetDni.trim());
 
       const res = await fetch(`/api/registrations?${params.toString()}`, { cache: "no-store" });
       const data = await res.json();
@@ -62,6 +63,10 @@ export default function AdminRegistrations() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function load() {
+    await loadWithFilters(page, eventTitle, email, dni);
   }
 
   useEffect(() => {
@@ -94,7 +99,7 @@ export default function AdminRegistrations() {
   function onSearch(e: React.FormEvent) {
     e.preventDefault();
     setPage(1);
-    void load();
+    void loadWithFilters(1, eventTitle, email, dni);
   }
 
   function onClear() {
@@ -102,7 +107,7 @@ export default function AdminRegistrations() {
     setEmail("");
     setDni("");
     setPage(1);
-    void load();
+    void loadWithFilters(1, "", "", "");
   }
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -189,22 +194,32 @@ export default function AdminRegistrations() {
                     <td className="py-1.5 pr-2 align-top">{r.modelo_coche}</td>
                     <td className="py-1.5 pr-2 align-top">{r.matricula}</td>
                     <td className="py-1.5 pr-2 align-top text-xs">
-                      <button
-                        type="button"
-                        className="border rounded px-2 py-1"
-                        style={{ borderColor: "var(--border)" }}
-                        onClick={() => {
-                          setEditing(r);
-                          setEditName(r.name ?? "");
-                          setEditEmail(r.email ?? "");
-                          setEditDni(r.dni ?? "");
-                          setEditModelo(r.modelo_coche ?? "");
-                          setEditMatricula(r.matricula ?? "");
-                          setEditNotas("");
-                        }}
-                      >
-                        Editar
-                      </button>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          className="border rounded px-2 py-1"
+                          style={{ borderColor: "var(--border)" }}
+                          onClick={() => {
+                            setEditing(r);
+                            setEditName(r.name ?? "");
+                            setEditEmail(r.email ?? "");
+                            setEditDni(r.dni ?? "");
+                            setEditModelo(r.modelo_coche ?? "");
+                            setEditMatricula(r.matricula ?? "");
+                            setEditNotas("");
+                          }}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          className="border rounded px-2 py-1 text-red-500"
+                          style={{ borderColor: "var(--border)" }}
+                          onClick={() => setDeleting(r)}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -260,6 +275,16 @@ export default function AdminRegistrations() {
           onClose={() => setEditing(null)}
           onSaved={() => {
             setEditing(null);
+            void load();
+          }}
+        />
+      )}
+      {deleting && (
+        <ConfirmDeleteRegistrationModal
+          item={deleting}
+          onCancel={() => setDeleting(null)}
+          onDeleted={() => {
+            setDeleting(null);
             void load();
           }}
         />
@@ -450,6 +475,70 @@ function EditRegistrationModal({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface ConfirmDeleteRegistrationModalProps {
+  item: RegistrationItem;
+  onCancel: () => void;
+  onDeleted: () => void;
+}
+
+function ConfirmDeleteRegistrationModal({ item, onCancel, onDeleted }: ConfirmDeleteRegistrationModalProps) {
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function onConfirm() {
+    try {
+      setSaving(true);
+      setError(null);
+      const res = await fetch(`/api/admin/registrations/${item.id}`, { method: "DELETE" });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(data?.error || "No se pudo eliminar el inscrito");
+      }
+      onDeleted();
+    } catch (err: any) {
+      setError(err?.message || "Error eliminando el inscrito");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-[120]">
+      <div className="absolute inset-0 bg-black/60" onClick={onCancel} aria-hidden />
+      <div className="absolute inset-0 overflow-auto">
+        <div className="container-app py-8 max-w-md mx-auto">
+          <div className="card p-6 space-y-4">
+            <h2 className="text-lg font-semibold">Eliminar inscrito</h2>
+            <p className="text-sm text-muted">
+              ¿Seguro que quieres eliminar el registro "{item.name}"?
+            </p>
+            {error && <p className="text-xs text-red-500">{error}</p>}
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                className="border rounded-lg px-3 py-1.5 text-sm"
+                style={{ borderColor: "var(--border)" }}
+                onClick={onCancel}
+                disabled={saving}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="btn-accent px-4 py-2 text-sm bg-red-600 hover:bg-red-700"
+                onClick={onConfirm}
+                disabled={saving}
+              >
+                {saving ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
           </div>
         </div>
       </div>

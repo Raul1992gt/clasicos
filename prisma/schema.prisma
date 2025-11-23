@@ -2,59 +2,53 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Usa la URL con pool (DATABASE_URL)
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Event {
-  id                  String          @id @default(uuid())
-  title               String
-  description         String?
-  startAt             DateTime
-  endAt               DateTime?
-  isPublished         Boolean         @default(true)
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
+  id                   String         @id @default(uuid())
+  title                String
+  description          String?
+  startAt              DateTime
+  endAt                DateTime?
+  isPublished          Boolean        @default(true)
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  maxRegistrations     Int?
   imagen_principal_url String?
-  registrations       Registration[]
-  images              EventImage[]
+  images               EventImage[]
+  registrations        Registration[]
 
   @@index([startAt])
 }
 
 model EventImage {
   id        String   @id @default(uuid())
-  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId   String
   url       String
   createdAt DateTime @default(now())
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@index([eventId])
 }
 
 model Registration {
-  id            String    @id @default(uuid())
-  event         Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId       String
-  
-  // Datos Personales
-  name          String
-  email         String
-  dni           String    @unique // El DNI debe ser único para evitar registros duplicados por persona
-  
-  // Datos del Coche
-  modelo_coche  String
-  matricula     String    @unique // La matrícula también debe ser única por coche
-  
-  // Imagen y Notas
-  imagen_url    String?   // Aquí guardaremos la URL de la imagen, el ? indica que es opcional
-  notas         String?   // Las notas son opcionales, el ? lo marca como tal
-  
-  createdAt     DateTime  @default(now())
+  id           String   @id @default(uuid())
+  eventId      String
+  name         String
+  email        String
+  createdAt    DateTime @default(now())
+  dni          String   @unique
+  telefono     String
+  imagen_url   String?
+  matricula    String   @unique
+  modelo_coche String
+  notas        String?
+  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
-  @@unique([eventId, email]) // Mantenemos la restricción única por evento/email
-  @@unique([eventId, dni])   // Opcional: Para asegurar que una persona (por DNI) solo se registra una vez por evento
+  @@unique([eventId, email])
+  @@unique([eventId, dni])
   @@index([eventId])
 }

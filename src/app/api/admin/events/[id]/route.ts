@@ -8,7 +8,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   try {
     const { id } = await params;
     const body = await req.json();
-    const { title, description, startAt, endAt, isPublished } = body ?? {};
+    const { title, description, startAt, endAt, isPublished, maxRegistrations } = body ?? {};
 
     const data: any = {};
     if (typeof title === "string") data.title = title.trim();
@@ -16,6 +16,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (typeof startAt === "string") data.startAt = new Date(startAt);
     if (typeof endAt === "string" || endAt === null) data.endAt = endAt ? new Date(endAt) : null;
     if (typeof isPublished === "boolean") data.isPublished = isPublished;
+    if (typeof maxRegistrations === "number") {
+      data.maxRegistrations = maxRegistrations;
+    } else if (typeof maxRegistrations === "string") {
+      data.maxRegistrations = maxRegistrations.trim() === "" ? null : Number(maxRegistrations);
+    } else if (maxRegistrations === null) {
+      data.maxRegistrations = null;
+    }
 
     if (Object.keys(data).length === 0) {
       return NextResponse.json({ error: "No hay datos para actualizar" }, { status: 400 });
@@ -30,5 +37,18 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   } catch (err) {
     console.error("[PATCH /api/admin/events/[id]]", err);
     return NextResponse.json({ error: "Error actualizando el evento" }, { status: 500 });
+  }
+}
+
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+
+    await prisma.event.delete({ where: { id } });
+
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (err) {
+    console.error("[DELETE /api/admin/events/[id]]", err);
+    return NextResponse.json({ error: "Error eliminando el evento" }, { status: 500 });
   }
 }

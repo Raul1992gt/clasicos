@@ -36,11 +36,11 @@ export default function EventDetailsModal({ open, onClose, event }: Props) {
   const ev: EventDetails = {
     title: event?.title ?? "Detalles de evento",
     subtitle: event?.subtitle ?? "",
-    cover: event?.cover ?? "/images/principal.jpg",
+    cover: event?.cover ?? "/images/principal.jpeg",
     meetingTitle: event?.meetingTitle ?? "Punto de Encuentro",
     meetingTime: event?.meetingTime ?? "06:00",
-    meetingImage: event?.meetingImage ?? "/images/reunion1.jpg",
-    gallery: event?.gallery ?? ["/images/clio.jpg", "/images/bmw.jpg", "/images/corrado.jpg"],
+    meetingImage: event?.meetingImage ?? "/images/principal.jpeg",
+    gallery: event?.gallery ?? ["/images/principal.jpeg"],
     stats: event?.stats ?? { checkin: "05:40 · Salida 06:15", distance: "90 km", weather: "Despejado", parking: "Vigilado" },
     stops: event?.stops ?? [
       { name: "Mirador del Acantilado", km: "Km 34" },
@@ -59,20 +59,20 @@ export default function EventDetailsModal({ open, onClose, event }: Props) {
     <div className="fixed inset-0 z-[100]">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60"
+        className="absolute inset-0 bg-black/70"
         onClick={onClose}
         aria-hidden
       />
 
       {/* Sheet */}
       <div className="absolute inset-x-0 bottom-0 top-0 overflow-auto">
-        <div className="container-app py-6">
-          <div className="card p-5 sm:p-6 lg:p-7 relative">
+        <div className="container-app py-8">
+          <div className="glass-card p-5 sm:p-6 lg:p-7 relative">
             {/* Header */}
-            <div className="flex items-start justify-between gap-4 pb-4">
+            <div className="flex items-start justify-between gap-4 pb-5 border-b" style={{ borderColor: "var(--border)" }}>
               <div>
-                <h3 className="text-lg sm:text-xl font-semibold">Detalles — {ev.title}</h3>
-                {ev.subtitle && <p className="text-muted text-sm">{ev.subtitle}</p>}
+                <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold tracking-tight">Detalles — {ev.title}</h3>
+                {ev.subtitle && <p className="text-muted text-sm mt-1">{ev.subtitle}</p>}
               </div>
               <button
                 onClick={onClose}

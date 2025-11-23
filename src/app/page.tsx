@@ -9,6 +9,7 @@ import EventDetailsModal, { type EventDetails } from "@/components/EventDetailsM
 import PastEventModal, { type PastEventDetails } from "@/components/PastEventModal";
 import Lightbox from "@/components/Lightbox";
 import LatestEvent from "@/components/LatestEvent";
+import RevealOnScroll from "@/components/RevealOnScroll";
 
 export default function Home() {
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -26,6 +27,39 @@ export default function Home() {
   >([]);
   const [pastLoading, setPastLoading] = useState(true);
   const [pastError, setPastError] = useState<string | null>(null);
+  const [currentMaxRegistrations, setCurrentMaxRegistrations] = useState<number | null>(null);
+  const [currentRegistrationsTotal, setCurrentRegistrationsTotal] = useState<number>(0);
+  const fullTitle = "Quiénes Somos";
+  const fullDescription =
+    "Somos una comunidad de amantes y usuarios de los coches clásicos. Nos enfocamos en experiencias seguras, disfrutables y con rutas bien planificadas por lugares pintorescos.";
+  const [typedDescription, setTypedDescription] = useState<string>("");
+  const [heroParallax, setHeroParallax] = useState<number>(0);
+
+  useEffect(() => {
+    function handleScroll() {
+      if (typeof window === "undefined") return;
+      const y = window.scrollY;
+      const clamped = Math.min(Math.max(y, 0), 400);
+      setHeroParallax(clamped * -0.06);
+    }
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    let index = 0;
+    const interval = setInterval(() => {
+      index += 1;
+      setTypedDescription(fullDescription.slice(0, index));
+      if (index >= fullDescription.length) {
+        clearInterval(interval);
+      }
+    }, 20);
+
+    return () => clearInterval(interval);
+  }, [fullDescription]);
 
   async function openPastEventDetails(ev: {
     id: string;
@@ -98,12 +132,16 @@ export default function Home() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const items = Array.isArray(data.items) ? data.items : [];
+      const total = typeof data.total === "number" ? data.total : items.length;
+      const maxRegs = data.event && typeof data.event.maxRegistrations === "number" ? data.event.maxRegistrations : null;
       const mapped = items.map((r: any) => ({
         src: r.imagen_url || undefined,
         title: r.name || "Inscrito",
         meta: r.modelo_coche || r.email || "",
       }));
       setAttendeesItems(mapped);
+      setCurrentRegistrationsTotal(total);
+      setCurrentMaxRegistrations(maxRegs);
       setAttendeesError(null);
     } catch (e: any) {
       setAttendeesError("No se pudieron cargar los inscritos");
@@ -115,6 +153,9 @@ export default function Home() {
   useEffect(() => {
     void loadAttendees();
   }, []);
+
+  const isRegistrationClosed =
+    currentMaxRegistrations !== null && currentRegistrationsTotal >= currentMaxRegistrations;
 
   // Cargar eventos pasados
   useEffect(() => {
@@ -140,75 +181,68 @@ export default function Home() {
     };
   }, []);
   return (
-    <div className="space-y-14">
-      {/* Hero */}
-      <section className="section-band band-1 grid gap-8 lg:gap-14 lg:grid-cols-2 items-center">
-        <div className="space-y-4">
-          <p className="text-sm text-muted">Clásicos Esquivias</p>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight">
-            Encuentra tu próxima quedada de coches clásicos
+    <div className="space-y-16">
+      {/* Hero = Quiénes Somos */}
+      <section className="section-band hero-band hero-section grid gap-8 lg:gap-14 lg:grid-cols-2 items-center">
+        <RevealOnScroll className="space-y-4">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight text-white">
+            {fullTitle}
           </h1>
           <p className="text-muted max-w-prose">
-            Organizamos salidas sociales, culturales y gastronómicas, orientadas a
-            quienes disfrutan viajar con coches clásicos conservando su esencia.
+            {typedDescription || fullDescription}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 pt-1">
-            <Link href="#eventos" className="btn-accent px-5 py-3 text-sm">Próximo evento</Link>
+            <Link href="#eventos" className="btn-accent btn-pulse px-5 py-3 text-sm">Próximo evento</Link>
           </div>
-        </div>
-        <div className="card overflow-hidden p-3 lg:p-4">
-          <div className="relative aspect-[16/10] w-full">
-            <Image src="/images/principal.jpg" alt="Ruta clásica" fill className="object-cover rounded-lg" />
+        </RevealOnScroll>
+        <RevealOnScroll className="glass-card hero-glow overflow-hidden p-3 lg:p-4">
+          <div
+            className="relative aspect-[16/10] w-full"
+            style={{ transform: `translateY(${heroParallax}px)`, transition: "transform 0.15s ease-out" }}
+          >
+            <Image src="/images/principal.jpeg" alt="Ruta clásica" fill className="object-cover rounded-lg" />
           </div>
-        </div>
+        </RevealOnScroll>
       </section>
 
       {/* Modal de detalles del evento */}
       <EventDetailsModal open={detailsOpen} onClose={() => setDetailsOpen(false)} event={detailsEvent} />
 
-      {/* Sobre / Métricas */}
-      <section id="sobre" className="section-band band-2 grid gap-8 lg:gap-14 lg:grid-cols-2 items-start">
-        <div className="space-y-4">
-          <h2 className="text-2xl font-semibold">Quiénes Somos</h2>
-          <p className="text-muted max-w-prose">
-            Somos una comunidad de amantes y usuarios de los coches clásicos. Nos
-            enfocamos en experiencias seguras, disfrutables y con rutas bien
-            planificadas por lugares pintorescos.
-          </p>
-          <div className="grid grid-cols-2 gap-5 lg:gap-6">
-            <div className="card p-4">
-              <div className="text-2xl font-semibold">1.2k+</div>
-              <div className="text-muted text-sm">Miembros</div>
-            </div>
-            <div className="card p-4">
-              <div className="text-2xl font-semibold">80+</div>
-              <div className="text-muted text-sm">Rutas</div>
-            </div>
-          </div>
-        </div>
-        <div className="card overflow-hidden p-3 lg:p-4">
-          <div className="relative aspect-[16/10] w-full">
-            <Image src="/images/reunion.jpg" alt="Reunión de clásicos" fill className="object-cover rounded-lg" />
-          </div>
-        </div>
-      </section>
+      
 
       {/* Evento + Registro, y debajo inscritos */}
-      <section id="eventos" className="section-band band-3 space-y-8">
-        {/* Fila principal: destacado + registro */}
-        <div className="grid gap-7 lg:gap-10 md:grid-cols-2">
-          {/* Destacado dinámico del próximo evento o fallback */}
-          <LatestEvent instagramUrl="#" />
+      <section id="eventos" className="section-band band-2 space-y-8">
+        <div className="event-panel">
+          <div className="event-panel-inner grid gap-7 lg:gap-10 md:grid-cols-2">
+            {/* Destacado dinámico del próximo evento o fallback */}
+            <RevealOnScroll>
+              <LatestEvent instagramUrl="#" />
+            </RevealOnScroll>
 
-          {/* Formulario registro */}
-          <div id="registro" className="card p-6 lg:p-7">
-            <h3 className="text-lg font-semibold mb-6">Nuevo Registro</h3>
-            <RegisterForm onRegistered={loadAttendees} />
+            {/* Formulario registro */}
+            <RevealOnScroll className="card-dark p-6 lg:p-7">
+              <div id="registro">
+                <h3 className="text-lg font-semibold mb-6">Nuevo Registro</h3>
+                {isRegistrationClosed ? (
+                  <div className="text-sm text-muted">Inscripciones cerradas, gracias a todos y nos vemos en breve.</div>
+                ) : (
+                  <RegisterForm
+                    onRegistered={loadAttendees}
+                    disabled={currentMaxRegistrations !== null && currentRegistrationsTotal >= currentMaxRegistrations}
+                  />
+                )}
+              </div>
+            </RevealOnScroll>
           </div>
+          {currentMaxRegistrations !== null && currentRegistrationsTotal >= currentMaxRegistrations && (
+            <div className="mt-6 bg-black/70 text-white text-sm text-center rounded-lg px-4 py-3">
+              Inscripciones cerradas, gracias a todos y nos vemos en breve.
+            </div>
+          )}
         </div>
 
         {/* Inscritos (fila completa debajo) */}
-        <div className="mt-8 card p-8 lg:p-10">
+        <RevealOnScroll className="mt-8 section-divider">
           <h3 className="text-lg font-semibold mb-6">Inscritos al Próximo Evento</h3>
           {attendeesLoading ? (
             <div className="text-sm text-muted">Cargando inscritos...</div>
@@ -219,11 +253,11 @@ export default function Home() {
           ) : (
             <AttendeesGrid items={attendeesItems} initialVisible={24} maxColumns={4} showMore={true} />
           )}
-        </div>
+        </RevealOnScroll>
       </section>
 
       {/* Eventos pasados */}
-      <section id="pasados" className="section-band band-4 space-y-6">
+      <section id="pasados" className="section-band band-2 space-y-6 mt-10">
         <h3 className="text-lg font-semibold mb-6">Eventos pasados</h3>
         <div className="grid gap-8 md:grid-cols-2">
           {pastLoading ? (
@@ -238,7 +272,8 @@ export default function Home() {
               const desc = ev.description ?? "";
               const mainImg = ev.imagen_principal_url ?? undefined;
               return (
-                <article key={ev.id} className="card p-6 space-y-4">
+                <RevealOnScroll key={ev.id}>
+                  <article className="card-dark p-6 space-y-4">
                   {mainImg && (
                     <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
                       <Image src={mainImg} alt={title} fill className="object-cover" />
@@ -251,13 +286,14 @@ export default function Home() {
                       onClick={() => {
                         void openPastEventDetails(ev);
                       }}
-                      className="text-sm text-muted hover:text-foreground underline-offset-4 hover:underline"
+                      className="btn-outline-accent"
                     >
                       Detalles
                     </button>
                   </div>
                   {desc ? <p className="text-muted text-sm">{desc}</p> : null}
                 </article>
+                </RevealOnScroll>
               );
             })
           )}

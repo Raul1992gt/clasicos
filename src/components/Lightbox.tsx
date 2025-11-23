@@ -27,7 +27,15 @@ export default function Lightbox({ open, images, index, onClose, onIndexChange }
 
   return (
     <div className="fixed inset-0 z-[120]">
-      <div className="absolute inset-0 bg-black/80" onClick={onClose} aria-hidden />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(circle at top, rgba(190,242,100,0.12), transparent 55%), radial-gradient(circle at bottom, rgba(250,204,21,0.12), transparent 55%), rgba(0,0,0,0.88)",
+        }}
+        onClick={onClose}
+        aria-hidden
+      />
       <div className="absolute inset-0 flex items-center justify-center p-4">
         <div className="relative w-full max-w-5xl">
           {/* Image area */}
@@ -36,17 +44,35 @@ export default function Lightbox({ open, images, index, onClose, onIndexChange }
           </div>
           {/* Controls */}
           <div className="absolute inset-0 flex items-center justify-between px-2">
-            <button aria-label="Anterior" className="bg-black/50 hover:bg-black/70 text-white w-10 h-10 rounded-full grid place-items-center" onClick={() => onIndexChange((index - 1 + images.length) % images.length)}>
+            <button
+              aria-label="Anterior"
+              className="bg-black/40 hover:bg-black/70 text-foreground w-12 h-12 rounded-full grid place-items-center border"
+              style={{ borderColor: "var(--accent)" }}
+              onClick={() => onIndexChange((index - 1 + images.length) % images.length)}
+            >
               ◀
             </button>
-            <button aria-label="Siguiente" className="bg-black/50 hover:bg-black/70 text-white w-10 h-10 rounded-full grid place-items-center" onClick={() => onIndexChange((index + 1) % images.length)}>
+            <button
+              aria-label="Siguiente"
+              className="bg-black/40 hover:bg-black/70 text-foreground w-12 h-12 rounded-full grid place-items-center border"
+              style={{ borderColor: "var(--accent)" }}
+              onClick={() => onIndexChange((index + 1) % images.length)}
+            >
               ▶
             </button>
           </div>
           {/* Footer */}
           <div className="mt-3 flex items-center justify-between text-xs text-muted">
-            <span>{index + 1} / {images.length}</span>
-            <button onClick={onClose} className="border rounded-lg px-3 py-1.5" style={{ borderColor: "var(--border)" }}>Cerrar</button>
+            <span>
+              {index + 1} / {images.length}
+            </span>
+            <button
+              onClick={onClose}
+              className="border rounded-lg px-3 py-1.5 text-foreground"
+              style={{ borderColor: "var(--accent)" }}
+            >
+              Cerrar
+            </button>
           </div>
         </div>
       </div>

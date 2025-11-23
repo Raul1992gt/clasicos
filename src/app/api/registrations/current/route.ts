@@ -11,10 +11,12 @@ export async function GET(req: NextRequest) {
     const skip = (page - 1) * pageSize;
 
     const now = new Date();
+
+    // Próximo evento publicado (mismo criterio que /api/events/latest)
     const event = await prisma.event.findFirst({
       where: { isPublished: true, startAt: { gte: now } },
       orderBy: { startAt: "asc" },
-      select: { id: true, title: true, startAt: true },
+      select: { id: true, title: true, startAt: true, maxRegistrations: true },
     });
 
     if (!event) {
@@ -31,7 +33,12 @@ export async function GET(req: NextRequest) {
       prisma.registration.count({ where: { eventId: event.id } }),
     ]);
 
-    return NextResponse.json({ event, items, page, pageSize, total });
+    const maxRegistrations = event.maxRegistrations ?? null;
+    const isFull = typeof maxRegistrations === "number" ? total >= maxRegistrations : false;
+    const remainingSlots =
+      typeof maxRegistrations === "number" ? Math.max(maxRegistrations - total, 0) : null;
+
+    return NextResponse.json({ event, items, page, pageSize, total, isFull, remainingSlots, maxRegistrations });
   } catch (err) {
     console.error("[GET /api/registrations/current]", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

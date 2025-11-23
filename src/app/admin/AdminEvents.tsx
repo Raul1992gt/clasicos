@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
 interface AdminEventItem {
@@ -9,6 +10,7 @@ interface AdminEventItem {
   startAt: string;
   endAt: string | null;
   imagen_principal_url: string | null;
+  maxRegistrations: number | null;
   _count: { registrations: number };
 }
 
@@ -25,6 +27,7 @@ export default function AdminEvents() {
   const [creating, setCreating] = useState(false);
   const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
   const [galleryEvent, setGalleryEvent] = useState<AdminEventItem | null>(null);
+  const [deleting, setDeleting] = useState<AdminEventItem | null>(null);
 
   async function load() {
     try {
@@ -326,6 +329,14 @@ export default function AdminEvents() {
                         </button>
                         <button
                           type="button"
+                          className="border rounded px-2 py-1 text-red-500"
+                          style={{ borderColor: "var(--border)" }}
+                          onClick={() => setDeleting(ev)}
+                        >
+                          Eliminar
+                        </button>
+                        <button
+                          type="button"
                           className="border rounded px-2 py-1"
                           style={{ borderColor: "var(--border)" }}
                           onClick={() => setGalleryEvent(ev)}
@@ -366,6 +377,16 @@ export default function AdminEvents() {
           onClose={() => setGalleryEvent(null)}
         />
       )}
+      {deleting && (
+        <ConfirmDeleteEventModal
+          event={deleting}
+          onCancel={() => setDeleting(null)}
+          onDeleted={async () => {
+            setDeleting(null);
+            await load();
+          }}
+        />
+      )}
     </section>
   );
 }
@@ -388,6 +409,9 @@ function EditEventModal({ event, onClose, onUpdated }: EditEventModalProps) {
     const d = new Date(event.endAt);
     return d.toISOString().slice(0, 16);
   });
+  const [maxRegistrations, setMaxRegistrations] = useState<string>(() => {
+    return event.maxRegistrations != null ? String(event.maxRegistrations) : "";
+  });
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -405,6 +429,12 @@ function EditEventModal({ event, onClose, onUpdated }: EditEventModalProps) {
           description,
           startAt: startAt ? new Date(startAt).toISOString() : undefined,
           endAt: endAt ? new Date(endAt).toISOString() : null,
+          maxRegistrations:
+            maxRegistrations.trim() === ""
+              ? null
+              : Number.isNaN(Number(maxRegistrations))
+              ? null
+              : Number(maxRegistrations),
         }),
       });
       const data = await res.json();
@@ -495,6 +525,16 @@ function EditEventModal({ event, onClose, onUpdated }: EditEventModalProps) {
                     onChange={(e) => setEndAt(e.target.value)}
                   />
                 </div>
+                <div className="grid gap-1">
+                  <span className="text-xs text-muted">Máximo de inscripciones (opcional)</span>
+                  <input
+                    type="number"
+                    min={1}
+                    className="bg-transparent border rounded-lg px-3 py-2 text-sm"
+                    value={maxRegistrations}
+                    onChange={(e) => setMaxRegistrations(e.target.value)}
+                  />
+                </div>
               </div>
 
               <div className="grid gap-2">
@@ -517,7 +557,11 @@ function EditEventModal({ event, onClose, onUpdated }: EditEventModalProps) {
                 >
                   Cancelar
                 </button>
-                <button type="submit" className="btn-accent px-4 py-2 text-sm" disabled={saving}>
+                <button
+                  type="submit"
+                  className="btn-accent px-4 py-2 text-sm"
+                  disabled={saving}
+                >
                   {saving ? "Guardando..." : "Guardar"}
                 </button>
               </div>
@@ -539,6 +583,7 @@ function CreateEventModal({ onClose, onCreated }: CreateEventModalProps) {
   const [description, setDescription] = useState("");
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
+  const [maxRegistrations, setMaxRegistrations] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -557,6 +602,12 @@ function CreateEventModal({ onClose, onCreated }: CreateEventModalProps) {
           description,
           startAt: startAt ? new Date(startAt).toISOString() : undefined,
           endAt: endAt ? new Date(endAt).toISOString() : null,
+          maxRegistrations:
+            maxRegistrations.trim() === ""
+              ? null
+              : Number.isNaN(Number(maxRegistrations))
+              ? null
+              : Number(maxRegistrations),
         }),
       });
       const data = await res.json();
@@ -840,3 +891,71 @@ function EventImagesModal({ event, onClose }: EventImagesModalProps) {
     </div>
   );
 }
+
+interface ConfirmDeleteEventModalProps {
+  event: AdminEventItem;
+  onCancel: () => void;
+  onDeleted: () => void | Promise<void>;
+}
+
+function ConfirmDeleteEventModal({ event, onCancel, onDeleted }: ConfirmDeleteEventModalProps) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function onConfirm() {
+    try {
+      setError(null);
+      setLoading(true);
+      const res = await fetch(`/api/admin/events/${event.id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error || "No se pudo eliminar el evento");
+      }
+      await onDeleted();
+    } catch (err: any) {
+      setError(err?.message || "Error inesperado");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-[120]">
+      <div className="absolute inset-0 bg-black/60" onClick={onCancel} aria-hidden />
+      <div className="absolute inset-0 overflow-auto">
+        <div className="container-app py-8 max-w-md mx-auto">
+          <div className="card p-6 space-y-4">
+            <h2 className="text-lg font-semibold">Eliminar evento</h2>
+            <p className="text-sm">
+              ¿Seguro que quieres eliminar el evento "{event.title}"? Esta acción no se puede deshacer.
+            </p>
+            {error && <p className="text-xs text-red-500">{error}</p>}
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                className="border rounded-lg px-3 py-1.5 text-sm"
+                style={{ borderColor: "var(--border)" }}
+                onClick={onCancel}
+                disabled={loading}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="border rounded-lg px-3 py-1.5 text-sm text-red-500"
+                style={{ borderColor: "var(--border)" }}
+                onClick={() => void onConfirm()}
+                disabled={loading}
+              >
+                {loading ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+

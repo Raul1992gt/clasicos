@@ -40,7 +40,7 @@ export default function LatestEvent({ instagramUrl = "#" }: { instagramUrl?: str
 
   if (loading) {
     return (
-      <div className="card p-6 lg:p-8">
+      <div className="card-dark p-6 lg:p-8">
         <div className="text-sm text-muted">Cargando próximo evento...</div>
       </div>
     );
@@ -48,7 +48,7 @@ export default function LatestEvent({ instagramUrl = "#" }: { instagramUrl?: str
 
   if (error) {
     return (
-      <div className="card p-6 lg:p-8">
+      <div className="card-dark p-6 lg:p-8">
         <div className="text-sm text-muted">{error}</div>
       </div>
     );
@@ -56,9 +56,9 @@ export default function LatestEvent({ instagramUrl = "#" }: { instagramUrl?: str
 
   if (!event) {
     return (
-      <div className="card p-6 lg:p-8 flex items-start gap-4">
+      <div className="card-dark p-6 lg:p-8 flex items-start gap-4">
         <div className="relative w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-muted/30">
-          <Image src="/vercel.svg" alt="instagram" fill className="object-contain p-4" />
+          <Image src="/images/principal.jpeg" alt="Clásicos Esquivias" fill className="object-cover" />
         </div>
         <div className="space-y-2">
           <h3 className="text-lg font-semibold">Estamos organizando el siguiente evento</h3>
@@ -75,7 +75,7 @@ export default function LatestEvent({ instagramUrl = "#" }: { instagramUrl?: str
   const dateFmt = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="card p-6 lg:p-8 flex flex-col gap-5">
+    <div className="card-dark p-6 lg:p-8 flex flex-col gap-5">
       {event.imagen_principal_url && (
         <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
           <Image src={event.imagen_principal_url} alt={event.title} fill className="object-cover" />

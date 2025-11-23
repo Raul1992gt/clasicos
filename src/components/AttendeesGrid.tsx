@@ -71,14 +71,19 @@ export default function AttendeesGrid({
     <div className="space-y-6">
       <ul className="grid gap-5 sm:gap-6 mx-auto w-full" style={gridStyle}>
         {list.map((e, i) => (
-          <li key={i} className={`card-soft p-2 flex items-center ${itemGapClass}`}>
+          <li key={i} className={`card-dark p-2 flex items-center ${itemGapClass}`}>
             {e.src && (
-              <div className={`relative ${avatarClass} overflow-hidden rounded`}>
+              <div
+                className={`relative ${avatarClass} overflow-hidden rounded`}
+                style={{ border: "1px solid var(--accent)" }}
+              >
                 <Image src={e.src} alt={e.title} fill sizes={bpCols === 1 ? "96px" : "64px"} className="object-cover" />
               </div>
             )}
             <div className="flex-1">
-              <div className={nameClass}>{e.title}</div>
+              <div className={nameClass} style={{ color: "var(--accent)" }}>
+                {e.title}
+              </div>
               <div className={metaClass}>{e.meta}</div>
             </div>
           </li>

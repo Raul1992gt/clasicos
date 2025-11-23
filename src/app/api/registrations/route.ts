@@ -10,6 +10,7 @@ const RegistrationSchema = z.object({
   name: z.string().min(1).max(200),
   email: z.string().email().max(320),
   dni: z.string().min(3).max(50),
+  telefono: z.string().min(3).max(50),
   modelo_coche: z.string().min(1).max(200),
   matricula: z.string().min(3).max(50),
   notas: z.string().max(2000).optional().nullable(),
@@ -65,12 +66,20 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const json = await req.json();
-    const { eventId, name, email, dni, modelo_coche, matricula, notas, imagen_url } = RegistrationSchema.parse(json);
+    const { eventId, name, email, dni, telefono, modelo_coche, matricula, notas, imagen_url } = RegistrationSchema.parse(json);
 
     // Verifica que el evento exista y esté publicado
     const event = await prisma.event.findUnique({ where: { id: eventId } });
     if (!event || !event.isPublished) {
       return NextResponse.json({ error: "Evento no disponible" }, { status: 400 });
+    }
+
+    // Comprueba límite de inscripciones si maxRegistrations está definido
+    if (typeof event.maxRegistrations === "number") {
+      const currentCount = await prisma.registration.count({ where: { eventId } });
+      if (currentCount >= event.maxRegistrations) {
+        return NextResponse.json({ error: "El evento ya ha alcanzado el número máximo de inscripciones" }, { status: 409 });
+      }
     }
 
     const registration = await prisma.registration.create({
@@ -79,6 +88,7 @@ export async function POST(req: NextRequest) {
         name,
         email,
         dni,
+        telefono,
         modelo_coche,
         matricula,
         notas: notas ?? undefined,

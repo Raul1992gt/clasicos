@@ -33,3 +33,16 @@ export async function PATCH(_req: NextRequest, { params }: { params: Promise<{ i
     return NextResponse.json({ error: "Error actualizando el registro" }, { status: 500 });
   }
 }
+
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+
+    await prisma.registration.delete({ where: { id } });
+
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (err) {
+    console.error("[DELETE /api/admin/registrations/[id]]", err);
+    return NextResponse.json({ error: "Error eliminando el registro" }, { status: 500 });
+  }
+}

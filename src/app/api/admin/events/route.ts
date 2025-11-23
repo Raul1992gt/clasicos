@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { title, description, startAt, endAt } = body ?? {};
+    const { title, description, startAt, endAt, maxRegistrations } = body ?? {};
 
     if (typeof title !== "string" || !title.trim()) {
       return NextResponse.json({ error: "El título es obligatorio" }, { status: 400 });
@@ -52,6 +52,12 @@ export async function POST(req: NextRequest) {
         description: typeof description === "string" ? description.trim() : null,
         startAt: new Date(startAt),
         endAt: typeof endAt === "string" && endAt ? new Date(endAt) : null,
+        maxRegistrations:
+          typeof maxRegistrations === "number"
+            ? maxRegistrations
+            : typeof maxRegistrations === "string" && maxRegistrations.trim() !== ""
+            ? Number(maxRegistrations)
+            : null,
       },
     });
 

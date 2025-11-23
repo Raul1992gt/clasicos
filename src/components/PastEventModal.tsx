@@ -28,14 +28,16 @@ export default function PastEventModal({ open, onClose, event }: Props) {
 
   return (
     <div className="fixed inset-0 z-[110]">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} aria-hidden />
+      <div className="absolute inset-0 bg-black/70" onClick={onClose} aria-hidden />
       <div className="absolute inset-0 overflow-auto">
-        <div className="container-app py-6">
-          <div className="card p-5 sm:p-6 lg:p-7">
-            <div className="flex items-start justify-between gap-4 pb-4">
+        <div className="container-app py-8">
+          <div className="glass-card p-5 sm:p-6 lg:p-7">
+            <div className="flex items-start justify-between gap-4 pb-5 border-b" style={{ borderColor: "var(--border)" }}>
               <div>
-                <h3 className="text-lg sm:text-xl font-semibold">{event.title}</h3>
-                <p className="text-muted text-sm">{event.description}</p>
+                <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold">{event.title}</h3>
+                <p className="text-sm mt-1" style={{ color: "var(--foreground)" }}>
+                  {event.description}
+                </p>
               </div>
               <button onClick={onClose} className="border rounded-lg px-3 py-1.5 text-sm" style={{ borderColor: "var(--border)" }}>
                 Cerrar
