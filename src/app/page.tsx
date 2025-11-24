@@ -200,7 +200,7 @@ export default function Home() {
             className="relative aspect-[16/10] w-full"
             style={{ transform: `translateY(${heroParallax}px)`, transition: "transform 0.15s ease-out" }}
           >
-            <Image src="/images/principal.jpeg" alt="Ruta clásica" fill className="object-cover rounded-lg" />
+            <Image src="/images/principal.jpeg" alt="Ruta clásica" fill className="object-contain rounded-lg" />
           </div>
         </RevealOnScroll>
       </section>
