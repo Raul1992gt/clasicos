@@ -38,7 +38,6 @@ export async function POST(req: NextRequest) {
         doc.fontSize(10).text(`Evento: ${evTitle} (${evDate})`);
         doc.text(`Nombre: ${r.name}`);
         doc.text(`Email: ${r.email}`);
-        doc.text(`DNI: ${r.dni}`);
         doc.text(`Modelo: ${r.modelo_coche}`);
         doc.text(`Matrícula: ${r.matricula}`);
         if (r.notas) doc.text(`Notas: ${r.notas}`);

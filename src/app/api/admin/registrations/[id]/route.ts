@@ -8,12 +8,11 @@ export async function PATCH(_req: NextRequest, { params }: { params: Promise<{ i
   try {
     const { id } = await params;
     const body = await _req.json();
-    const { name, email, dni, modelo_coche, matricula, notas } = body ?? {};
+    const { name, email, modelo_coche, matricula, notas } = body ?? {};
 
     const data: any = {};
     if (typeof name === "string") data.name = name.trim();
     if (typeof email === "string") data.email = email.trim();
-    if (typeof dni === "string") data.dni = dni.trim();
     if (typeof modelo_coche === "string") data.modelo_coche = modelo_coche.trim();
     if (typeof matricula === "string") data.matricula = matricula.trim();
     if (typeof notas === "string" || notas === null) data.notas = notas?.trim() || null;

@@ -14,7 +14,6 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
   // Campos del formulario
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [dni, setDni] = useState("");
   const [telefono, setTelefono] = useState("");
   const [modelo, setModelo] = useState("");
   const [matricula, setMatricula] = useState("");
@@ -122,7 +121,6 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
         eventId,
         name: name.trim(),
         email: email.trim(),
-        dni: dni.trim(),
         telefono: telefono.trim(),
         modelo_coche: modelo.trim(),
         matricula: matricula.trim(),
@@ -158,7 +156,6 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
       setSubmitMsg("Registro enviado correctamente");
       setName("");
       setEmail("");
-      setDni("");
       setTelefono("");
       setModelo("");
       setMatricula("");
@@ -213,16 +210,6 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
         required
       />
       {fieldErrors.email && <p className="text-xs text-red-500">{fieldErrors.email}</p>}
-      <input
-        className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-red-700"
-        placeholder="DNI"
-        style={{ borderColor: "var(--border)", boxShadow: "0 0 0 0 rgba(0,0,0,0)" }}
-        value={dni}
-        onChange={(e) => setDni(e.target.value)}
-        disabled={isDisabled}
-        required
-      />
-      {fieldErrors.dni && <p className="text-xs text-red-500">{fieldErrors.dni}</p>}
       <input
         className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-red-700"
         placeholder="Teléfono"

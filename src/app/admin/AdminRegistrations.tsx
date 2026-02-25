@@ -8,7 +8,6 @@ interface RegistrationItem {
   eventId: string;
   name: string;
   email: string;
-  dni: string;
   modelo_coche: string;
   matricula: string;
   createdAt: string;
@@ -28,19 +27,17 @@ export default function AdminRegistrations() {
 
   const [eventTitle, setEventTitle] = useState("");
   const [email, setEmail] = useState("");
-  const [dni, setDni] = useState("");
   const [initialized, setInitialized] = useState(false);
   const [editing, setEditing] = useState<RegistrationItem | null>(null);
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
-  const [editDni, setEditDni] = useState("");
   const [editModelo, setEditModelo] = useState("");
   const [editMatricula, setEditMatricula] = useState("");
   const [editNotas, setEditNotas] = useState("");
   const [editImageUploading, setEditImageUploading] = useState(false);
   const [deleting, setDeleting] = useState<RegistrationItem | null>(null);
 
-  async function loadWithFilters(targetPage: number, targetEventTitle: string, targetEmail: string, targetDni: string) {
+  async function loadWithFilters(targetPage: number, targetEventTitle: string, targetEmail: string) {
     try {
       setLoading(true);
       setError(null);
@@ -49,7 +46,6 @@ export default function AdminRegistrations() {
       params.set("pageSize", String(pageSize));
       if (targetEventTitle.trim()) params.set("eventTitle", targetEventTitle.trim());
       if (targetEmail.trim()) params.set("email", targetEmail.trim());
-      if (targetDni.trim()) params.set("dni", targetDni.trim());
 
       const res = await fetch(`/api/registrations?${params.toString()}`, { cache: "no-store" });
       const data = await res.json();
@@ -66,7 +62,7 @@ export default function AdminRegistrations() {
   }
 
   async function load() {
-    await loadWithFilters(page, eventTitle, email, dni);
+    await loadWithFilters(page, eventTitle, email);
   }
 
   useEffect(() => {
@@ -76,12 +72,10 @@ export default function AdminRegistrations() {
         const params = new URLSearchParams(window.location.search);
         const qEventTitle = params.get("eventTitle") ?? "";
         const qEmail = params.get("email") ?? "";
-        const qDni = params.get("dni") ?? "";
         const qPage = Number(params.get("page") ?? 1);
 
         if (qEventTitle) setEventTitle(qEventTitle);
         if (qEmail) setEmail(qEmail);
-        if (qDni) setDni(qDni);
         if (!Number.isNaN(qPage) && qPage > 0) {
           setPage(qPage);
         }
@@ -99,15 +93,14 @@ export default function AdminRegistrations() {
   function onSearch(e: React.FormEvent) {
     e.preventDefault();
     setPage(1);
-    void loadWithFilters(1, eventTitle, email, dni);
+    void loadWithFilters(1, eventTitle, email);
   }
 
   function onClear() {
     setEventTitle("");
     setEmail("");
-    setDni("");
     setPage(1);
-    void loadWithFilters(1, "", "", "");
+    void loadWithFilters(1, "", "");
   }
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -131,12 +124,6 @@ export default function AdminRegistrations() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          className="bg-transparent border rounded-lg px-3 py-2 text-sm"
-          placeholder="DNI"
-          value={dni}
-          onChange={(e) => setDni(e.target.value)}
         />
         <div className="flex gap-2">
           <button type="submit" className="btn-accent px-4 py-2 text-sm" disabled={loading}>
@@ -169,7 +156,6 @@ export default function AdminRegistrations() {
                 <th className="py-2 pr-2">Evento</th>
                 <th className="py-2 pr-2">Nombre</th>
                 <th className="py-2 pr-2">Email</th>
-                <th className="py-2 pr-2">DNI</th>
                 <th className="py-2 pr-2">Modelo</th>
                 <th className="py-2 pr-2">Matrícula</th>
                 <th className="py-2 pr-2">Acciones</th>
@@ -190,7 +176,6 @@ export default function AdminRegistrations() {
                     <td className="py-1.5 pr-2 align-top text-xs break-all">{eventTitle}</td>
                     <td className="py-1.5 pr-2 align-top">{r.name}</td>
                     <td className="py-1.5 pr-2 align-top text-xs break-all">{r.email}</td>
-                    <td className="py-1.5 pr-2 align-top">{r.dni}</td>
                     <td className="py-1.5 pr-2 align-top">{r.modelo_coche}</td>
                     <td className="py-1.5 pr-2 align-top">{r.matricula}</td>
                     <td className="py-1.5 pr-2 align-top text-xs">
@@ -203,7 +188,6 @@ export default function AdminRegistrations() {
                             setEditing(r);
                             setEditName(r.name ?? "");
                             setEditEmail(r.email ?? "");
-                            setEditDni(r.dni ?? "");
                             setEditModelo(r.modelo_coche ?? "");
                             setEditMatricula(r.matricula ?? "");
                             setEditNotas("");
@@ -262,8 +246,6 @@ export default function AdminRegistrations() {
           setName={setEditName}
           email={editEmail}
           setEmail={setEditEmail}
-          dni={editDni}
-          setDni={setEditDni}
           modelo={editModelo}
           setModelo={setEditModelo}
           matricula={editMatricula}
@@ -299,8 +281,6 @@ interface EditModalProps {
   setName: (v: string) => void;
   email: string;
   setEmail: (v: string) => void;
-  dni: string;
-  setDni: (v: string) => void;
   modelo: string;
   setModelo: (v: string) => void;
   matricula: string;
@@ -319,8 +299,6 @@ function EditRegistrationModal({
   setName,
   email,
   setEmail,
-  dni,
-  setDni,
   modelo,
   setModelo,
   matricula,
@@ -346,7 +324,6 @@ function EditRegistrationModal({
         body: JSON.stringify({
           name,
           email,
-          dni,
           modelo_coche: modelo,
           matricula,
           notas,
@@ -419,13 +396,6 @@ function EditRegistrationModal({
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <input
-                className="bg-transparent border rounded-lg px-3 py-2 text-sm"
-                placeholder="DNI"
-                value={dni}
-                onChange={(e) => setDni(e.target.value)}
                 required
               />
               <input

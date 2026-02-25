@@ -9,7 +9,6 @@ const RegistrationSchema = z.object({
   eventId: z.string().uuid(),
   name: z.string().min(1).max(200),
   email: z.string().email().max(320),
-  dni: z.string().min(3).max(50),
   telefono: z.string().min(3).max(50),
   modelo_coche: z.string().min(1).max(200),
   matricula: z.string().min(3).max(50),
@@ -25,14 +24,12 @@ export async function GET(req: NextRequest) {
     const eventId = searchParams.get("eventId");
     const eventTitle = searchParams.get("eventTitle");
     const email = searchParams.get("email");
-    const dni = searchParams.get("dni");
 
     const skip = (page - 1) * pageSize;
 
     const where: any = {};
     if (eventId) where.eventId = eventId;
     if (email) where.email = email;
-    if (dni) where.dni = dni;
     if (eventTitle) {
       where.event = {
         ...(where.event || {}),
@@ -66,7 +63,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const json = await req.json();
-    const { eventId, name, email, dni, telefono, modelo_coche, matricula, notas, imagen_url } = RegistrationSchema.parse(json);
+    const { eventId, name, email, telefono, modelo_coche, matricula, notas, imagen_url } = RegistrationSchema.parse(json);
 
     // Verifica que el evento exista y esté publicado
     const event = await prisma.event.findUnique({ where: { id: eventId } });
@@ -87,7 +84,6 @@ export async function POST(req: NextRequest) {
         eventId,
         name,
         email,
-        dni,
         telefono,
         modelo_coche,
         matricula,
@@ -104,9 +100,6 @@ export async function POST(req: NextRequest) {
       if (typeof target === "string") {
         if (target.includes("eventId") && target.includes("email")) {
           return NextResponse.json({ error: "Ya estás inscrito con ese email para este evento" }, { status: 409 });
-        }
-        if (target.includes("dni")) {
-          return NextResponse.json({ error: "El DNI ya está registrado" }, { status: 409 });
         }
         if (target.includes("matricula")) {
           return NextResponse.json({ error: "La matrícula ya está registrada" }, { status: 409 });

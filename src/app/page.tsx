@@ -31,7 +31,7 @@ export default function Home() {
   const [currentRegistrationsTotal, setCurrentRegistrationsTotal] = useState<number>(0);
   const fullTitle = "Quiénes Somos";
   const fullDescription =
-    "Somos una comunidad de amantes y usuarios de los coches clásicos. Nos enfocamos en experiencias seguras, disfrutables y con rutas bien planificadas por lugares pintorescos.";
+    "Somos una asociación de clásicos destinada a la organización de eventos de este tipo, todo por el disfrute de esta gran comunidad como somos los amantes de estos coches.";
   const [typedDescription, setTypedDescription] = useState<string>("");
   const [heroParallax, setHeroParallax] = useState<number>(0);
 

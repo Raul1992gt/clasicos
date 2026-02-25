@@ -40,7 +40,6 @@ model Registration {
   name         String
   email        String
   createdAt    DateTime @default(now())
-  dni          String   @unique
   telefono     String
   imagen_url   String?
   matricula    String   @unique
@@ -49,6 +48,5 @@ model Registration {
   event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, email])
-  @@unique([eventId, dni])
   @@index([eventId])
 }
