@@ -40,7 +40,6 @@ export async function POST(req: NextRequest) {
         doc.text(`Email: ${r.email}`);
         doc.text(`Modelo: ${r.modelo_coche}`);
         doc.text(`Matrícula: ${r.matricula}`);
-        if (r.notas) doc.text(`Notas: ${r.notas}`);
         doc.text(`Alta: ${new Date(r.createdAt).toLocaleString("es-ES")}`);
         doc.moveDown();
       });

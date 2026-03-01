@@ -33,7 +33,6 @@ export default function AdminRegistrations() {
   const [editEmail, setEditEmail] = useState("");
   const [editModelo, setEditModelo] = useState("");
   const [editMatricula, setEditMatricula] = useState("");
-  const [editNotas, setEditNotas] = useState("");
   const [editImageUploading, setEditImageUploading] = useState(false);
   const [deleting, setDeleting] = useState<RegistrationItem | null>(null);
 
@@ -156,7 +155,7 @@ export default function AdminRegistrations() {
                 <th className="py-2 pr-2">Evento</th>
                 <th className="py-2 pr-2">Nombre</th>
                 <th className="py-2 pr-2">Email</th>
-                <th className="py-2 pr-2">Modelo</th>
+                <th className="py-2 pr-2">Marca y modelo</th>
                 <th className="py-2 pr-2">Matrícula</th>
                 <th className="py-2 pr-2">Acciones</th>
               </tr>
@@ -190,7 +189,6 @@ export default function AdminRegistrations() {
                             setEditEmail(r.email ?? "");
                             setEditModelo(r.modelo_coche ?? "");
                             setEditMatricula(r.matricula ?? "");
-                            setEditNotas("");
                           }}
                         >
                           Editar
@@ -250,8 +248,6 @@ export default function AdminRegistrations() {
           setModelo={setEditModelo}
           matricula={editMatricula}
           setMatricula={setEditMatricula}
-          notas={editNotas}
-          setNotas={setEditNotas}
           uploadingImage={editImageUploading}
           setUploadingImage={setEditImageUploading}
           onClose={() => setEditing(null)}
@@ -285,8 +281,6 @@ interface EditModalProps {
   setModelo: (v: string) => void;
   matricula: string;
   setMatricula: (v: string) => void;
-  notas: string;
-  setNotas: (v: string) => void;
   uploadingImage: boolean;
   setUploadingImage: (v: boolean) => void;
   onClose: () => void;
@@ -303,8 +297,6 @@ function EditRegistrationModal({
   setModelo,
   matricula,
   setMatricula,
-  notas,
-  setNotas,
   uploadingImage,
   setUploadingImage,
   onClose,
@@ -326,7 +318,6 @@ function EditRegistrationModal({
           email,
           modelo_coche: modelo,
           matricula,
-          notas,
         }),
       });
       const data = await res.json();
@@ -400,7 +391,7 @@ function EditRegistrationModal({
               />
               <input
                 className="bg-transparent border rounded-lg px-3 py-2 text-sm"
-                placeholder="Modelo del coche"
+                placeholder="Marca y modelo del coche"
                 value={modelo}
                 onChange={(e) => setModelo(e.target.value)}
                 required
@@ -411,13 +402,6 @@ function EditRegistrationModal({
                 value={matricula}
                 onChange={(e) => setMatricula(e.target.value)}
                 required
-              />
-              <textarea
-                className="bg-transparent border rounded-lg px-3 py-2 text-sm"
-                placeholder="Notas"
-                rows={3}
-                value={notas}
-                onChange={(e) => setNotas(e.target.value)}
               />
 
               <div className="grid gap-2">

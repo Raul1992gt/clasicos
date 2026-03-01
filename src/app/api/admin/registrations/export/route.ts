@@ -28,7 +28,6 @@ export async function POST(req: NextRequest) {
       "email",
       "modelo_coche",
       "matricula",
-      "notas",
       "createdAt",
     ];
 
@@ -40,7 +39,6 @@ export async function POST(req: NextRequest) {
       r.email,
       r.modelo_coche,
       r.matricula,
-      r.notas ?? "",
       r.createdAt.toISOString(),
     ]);
 

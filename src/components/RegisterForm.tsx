@@ -17,7 +17,6 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
   const [telefono, setTelefono] = useState("");
   const [modelo, setModelo] = useState("");
   const [matricula, setMatricula] = useState("");
-  const [notas, setNotas] = useState("");
 
   // Estado de envío
   const [submitting, setSubmitting] = useState(false);
@@ -124,7 +123,6 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
         telefono: telefono.trim(),
         modelo_coche: modelo.trim(),
         matricula: matricula.trim(),
-        notas: notas.trim() || undefined,
         imagen_url: finalImageUrl,
       };
 
@@ -159,7 +157,6 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
       setTelefono("");
       setModelo("");
       setMatricula("");
-      setNotas("");
       // Limpieza de preview si venía de archivo
       if (preview) {
         URL.revokeObjectURL(preview);
@@ -222,7 +219,7 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
       {fieldErrors.telefono && <p className="text-xs text-red-500">{fieldErrors.telefono}</p>}
       <input
         className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-red-700"
-        placeholder="Modelo del coche"
+        placeholder="Marca y modelo del coche"
         style={{ borderColor: "var(--border)", boxShadow: "0 0 0 0 rgba(0,0,0,0)" }}
         value={modelo}
         onChange={(e) => setModelo(e.target.value)}
@@ -240,16 +237,6 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
         required
       />
       {fieldErrors.matricula && <p className="text-xs text-red-500">{fieldErrors.matricula}</p>}
-      <textarea
-        className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-red-700"
-        placeholder="Notas (opcional)"
-        rows={3}
-        style={{ borderColor: "var(--border)", boxShadow: "0 0 0 0 rgba(0,0,0,0)" }}
-        value={notas}
-        onChange={(e) => setNotas(e.target.value)}
-        disabled={isDisabled}
-      />
-      {fieldErrors.notas && <p className="text-xs text-red-500">{fieldErrors.notas}</p>}
 
       {/* Sección de imagen */}
       <div className="grid gap-2">

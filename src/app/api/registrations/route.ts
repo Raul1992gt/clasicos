@@ -12,7 +12,6 @@ const RegistrationSchema = z.object({
   telefono: z.string().min(3).max(50),
   modelo_coche: z.string().min(1).max(200),
   matricula: z.string().min(3).max(50),
-  notas: z.string().max(2000).optional().nullable(),
   imagen_url: z.string().url().max(2000).optional().nullable(),
 });
 
@@ -63,7 +62,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const json = await req.json();
-    const { eventId, name, email, telefono, modelo_coche, matricula, notas, imagen_url } = RegistrationSchema.parse(json);
+    const { eventId, name, email, telefono, modelo_coche, matricula, imagen_url } = RegistrationSchema.parse(json);
 
     // Verifica que el evento exista y esté publicado
     const event = await prisma.event.findUnique({ where: { id: eventId } });
@@ -87,7 +86,6 @@ export async function POST(req: NextRequest) {
         telefono,
         modelo_coche,
         matricula,
-        notas: notas ?? undefined,
         imagen_url: imagen_url ?? undefined,
       },
     });
