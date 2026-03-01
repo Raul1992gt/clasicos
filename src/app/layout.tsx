@@ -16,8 +16,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Clásicos Esquivias",
-  description: "Encuentra tu próxima ruta de coches clásicos",
+  title: "Asoc. Clásicos Esquivias",
+  description: "Somos una asociación de clásicos destinada a la organización de eventos de este tipo",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
