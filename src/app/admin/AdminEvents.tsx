@@ -731,20 +731,22 @@ function EventImagesModal({ event, onClose }: EventImagesModalProps) {
   }, [event.id]);
 
   async function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
     try {
       setUploading(true);
       setError(null);
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch(`/api/admin/events/${event.id}/images`, {
-        method: "POST",
-        body: fd,
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.error || "No se pudo subir la imagen");
+      for (const file of Array.from(files)) {
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch(`/api/admin/events/${event.id}/images`, {
+          method: "POST",
+          body: fd,
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data?.error || "No se pudo subir la imagen");
+        }
       }
       await loadImages();
     } catch (err: any) {
@@ -792,15 +794,16 @@ function EventImagesModal({ event, onClose }: EventImagesModalProps) {
             <p className="text-xs text-muted">Evento: {event.title}</p>
 
             <div className="grid gap-2">
-              <span className="text-xs text-muted">Añadir imagen a la galería</span>
+              <span className="text-xs text-muted">Añadir imágenes a la galería</span>
               <label
                 className="border rounded-lg px-3 py-2 text-sm cursor-pointer w-fit"
                 style={{ borderColor: "var(--border)" }}
               >
-                {uploading ? "Subiendo..." : "Seleccionar imagen"}
+                {uploading ? "Subiendo..." : "Seleccionar imágenes"}
                 <input
                   type="file"
                   accept="image/*"
+                  multiple
                   className="hidden"
                   onChange={onUpload}
                   disabled={uploading}
