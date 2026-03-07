@@ -28,7 +28,6 @@ export default function AdminRegistrations() {
   const [initialized, setInitialized] = useState(false);
   const [editing, setEditing] = useState<RegistrationItem | null>(null);
   const [editName, setEditName] = useState("");
-  const [editEmail, setEditEmail] = useState("");
   const [editModelo, setEditModelo] = useState("");
   const [editMatricula, setEditMatricula] = useState("");
   const [editImageUploading, setEditImageUploading] = useState(false);
@@ -172,7 +171,6 @@ export default function AdminRegistrations() {
                           onClick={() => {
                             setEditing(r);
                             setEditName(r.name ?? "");
-                            setEditEmail(r.email ?? "");
                             setEditModelo(r.modelo_coche ?? "");
                             setEditMatricula(r.matricula ?? "");
                           }}
@@ -228,8 +226,6 @@ export default function AdminRegistrations() {
           item={editing}
           name={editName}
           setName={setEditName}
-          email={editEmail}
-          setEmail={setEditEmail}
           modelo={editModelo}
           setModelo={setEditModelo}
           matricula={editMatricula}
