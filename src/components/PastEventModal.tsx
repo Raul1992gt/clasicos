@@ -50,7 +50,7 @@ export default function PastEventModal({ open, onClose, event }: Props) {
                 <div className="grid gap-3 sm:grid-cols-3">
                   {event.galleryEvent.map((src) => (
                     <div key={src} className="relative aspect-[4/3] w-full overflow-hidden rounded">
-                      <Image src={src} alt={event.title} fill className="object-cover" />
+                      <Image src={src} alt={event.title} fill className="object-contain" />
                     </div>
                   ))}
                 </div>
@@ -63,7 +63,7 @@ export default function PastEventModal({ open, onClose, event }: Props) {
                 <div className="grid gap-3 sm:grid-cols-3">
                   {event.galleryRegistrations.map((src) => (
                     <div key={src} className="relative aspect-[4/3] w-full overflow-hidden rounded">
-                      <Image src={src} alt={event.title} fill className="object-cover" />
+                      <Image src={src} alt={event.title} fill className="object-contain" />
                     </div>
                   ))}
                 </div>

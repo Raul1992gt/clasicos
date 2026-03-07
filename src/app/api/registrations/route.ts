@@ -5,13 +5,22 @@ import prisma from "@/lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 export const runtime = "nodejs";
+const currentYear = new Date().getFullYear();
+
 const RegistrationSchema = z.object({
   eventId: z.string().uuid(),
   name: z.string().min(1).max(200),
-  email: z.string().email().max(320),
+  apellido: z.string().min(1).max(200),
   telefono: z.string().min(3).max(50),
   modelo_coche: z.string().min(1).max(200),
   matricula: z.string().min(3).max(50),
+  anio_fabricacion: z
+    .coerce.number()
+    .int()
+    .min(1900)
+    .max(currentYear + 1),
+  mostrar_publicamente: z.boolean().optional(),
+  consentimiento_privacidad: z.boolean(),
   imagen_url: z.string().url().max(2000).optional().nullable(),
 });
 
@@ -22,13 +31,15 @@ export async function GET(req: NextRequest) {
     const pageSize = Number(searchParams.get("pageSize") ?? 20);
     const eventId = searchParams.get("eventId");
     const eventTitle = searchParams.get("eventTitle");
-    const email = searchParams.get("email");
+    const publicOnly = searchParams.get("publicOnly");
 
     const skip = (page - 1) * pageSize;
 
     const where: any = {};
     if (eventId) where.eventId = eventId;
-    if (email) where.email = email;
+    if (publicOnly === "1" || publicOnly === "true") {
+      where.mostrar_publicamente = true;
+    }
     if (eventTitle) {
       where.event = {
         ...(where.event || {}),
@@ -62,7 +73,25 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const json = await req.json();
-    const { eventId, name, email, telefono, modelo_coche, matricula, imagen_url } = RegistrationSchema.parse(json);
+    const {
+      eventId,
+      name,
+      apellido,
+      telefono,
+      modelo_coche,
+      matricula,
+      anio_fabricacion,
+      mostrar_publicamente,
+      consentimiento_privacidad,
+      imagen_url,
+    } = RegistrationSchema.parse(json);
+
+    if (!consentimiento_privacidad) {
+      return NextResponse.json(
+        { error: "Debes aceptar la Política de Privacidad para completar la inscripción." },
+        { status: 400 }
+      );
+    }
 
     // Verifica que el evento exista y esté publicado
     const event = await prisma.event.findUnique({ where: { id: eventId } });
@@ -82,10 +111,14 @@ export async function POST(req: NextRequest) {
       data: {
         eventId,
         name,
-        email,
+        apellido,
         telefono,
         modelo_coche,
         matricula,
+        anio_fabricacion,
+        mostrar_publicamente: mostrar_publicamente ?? true,
+        consentimiento_privacidad: true,
+        fecha_consentimiento: new Date(),
         imagen_url: imagen_url ?? undefined,
       },
     });
@@ -96,9 +129,6 @@ export async function POST(req: NextRequest) {
       const metaTarget = (err.meta as any)?.target as string[] | string | undefined;
       const target = Array.isArray(metaTarget) ? metaTarget.join(",") : metaTarget ?? "";
       if (typeof target === "string") {
-        if (target.includes("eventId") && target.includes("email")) {
-          return NextResponse.json({ error: "Ya estás inscrito con ese email para este evento" }, { status: 409 });
-        }
         if (target.includes("matricula")) {
           return NextResponse.json({ error: "La matrícula ya está registrada" }, { status: 409 });
         }

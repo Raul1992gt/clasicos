@@ -35,17 +35,20 @@ model EventImage {
 }
 
 model Registration {
-  id           String   @id @default(uuid())
-  eventId      String
-  name         String
-  email        String
-  createdAt    DateTime @default(now())
-  telefono     String
-  imagen_url   String?
-  matricula    String   @unique
-  modelo_coche String
-  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  id                    String   @id @default(uuid())
+  eventId               String
+  name                  String
+  apellido              String   @default("")
+  createdAt             DateTime @default(now())
+  telefono              String
+  imagen_url            String?
+  matricula             String   @unique
+  modelo_coche          String
+  anio_fabricacion      Int      @default(1900)
+  mostrar_publicamente  Boolean  @default(true)
+  consentimiento_privacidad Boolean @default(false)
+  fecha_consentimiento  DateTime?
+  event                 Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
-  @@unique([eventId, email])
   @@index([eventId])
 }

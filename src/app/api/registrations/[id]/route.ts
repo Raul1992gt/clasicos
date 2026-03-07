@@ -8,7 +8,6 @@ export const runtime = "nodejs";
 
 const RegistrationUpdateSchema = z.object({
   name: z.string().min(1).max(200).optional(),
-  email: z.string().email().max(320).optional(),
 });
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -33,7 +32,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       where: { id },
       data: {
         ...("name" in data ? { name: data.name! } : {}),
-        ...("email" in data ? { email: data.email! } : {}),
       },
     });
 
@@ -43,7 +41,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ error: "Datos inválidos", details: err.flatten() }, { status: 422 });
     }
     if (err instanceof PrismaClientKnownRequestError && err.code === "P2002") {
-      return NextResponse.json({ error: "Ya existe una inscripción con ese email para este evento" }, { status: 409 });
+      return NextResponse.json({ error: "Ya existe una inscripción con esos datos para este evento" }, { status: 409 });
     }
     console.error("[PATCH /api/registrations/[id]]", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

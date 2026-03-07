@@ -90,7 +90,7 @@ export default function EventDetailsModal({ open, onClose, event }: Props) {
               <div className="space-y-4">
                 <div className="card-soft p-2">
                   <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
-                    <Image src={ev.cover!} alt="Cover" fill className="object-cover" />
+                    <Image src={ev.cover!} alt="Cover" fill className="object-contain" />
                   </div>
                 </div>
 
@@ -148,7 +148,7 @@ export default function EventDetailsModal({ open, onClose, event }: Props) {
                     <h4 className="font-medium mb-2">{ev.meetingTitle ?? "Punto de Encuentro"}</h4>
                     {ev.meetingTime && <p className="text-sm text-muted">{ev.meetingTime}</p>}
                     <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg mt-2">
-                      <Image src={ev.meetingImage!} alt="Mapa" fill className="object-cover" />
+                      <Image src={ev.meetingImage!} alt="Mapa" fill className="object-contain" />
                     </div>
                     <p className="text-xs text-muted mt-2">Coordenadas: 36.720, -4.420</p>
                   </div>
@@ -160,7 +160,7 @@ export default function EventDetailsModal({ open, onClose, event }: Props) {
                     <div className="grid grid-cols-3 gap-2">
                       {ev.gallery?.map((src) => (
                         <div key={src} className="relative aspect-[4/3] w-full overflow-hidden rounded">
-                          <Image src={src} alt="Galería" fill className="object-cover" />
+                          <Image src={src} alt="Galería" fill className="object-contain" />
                         </div>
                       ))}
                     </div>

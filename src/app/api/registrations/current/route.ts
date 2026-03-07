@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 
     const [items, total] = await Promise.all([
       prisma.registration.findMany({
-        where: { eventId: event.id },
+        where: { eventId: event.id, mostrar_publicamente: true },
         orderBy: { createdAt: "desc" },
         skip,
         take: pageSize,

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 interface RegisterFormProps {
   onRegistered?: () => void;
@@ -13,10 +14,14 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
 
   // Campos del formulario
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [apellido, setApellido] = useState("");
   const [telefono, setTelefono] = useState("");
   const [modelo, setModelo] = useState("");
   const [matricula, setMatricula] = useState("");
+  const [anioFabricacion, setAnioFabricacion] = useState("");
+  const [mostrarPublicamente, setMostrarPublicamente] = useState(true);
+  const [aceptaPrivacidad, setAceptaPrivacidad] = useState(false);
+  const [aceptaResponsabilidad, setAceptaResponsabilidad] = useState(false);
 
   // Estado de envío
   const [submitting, setSubmitting] = useState(false);
@@ -98,6 +103,16 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
       return;
     }
 
+    if (!aceptaPrivacidad) {
+      setSubmitError("Debes aceptar la Política de Privacidad para completar la inscripción.");
+      return;
+    }
+
+    if (!aceptaResponsabilidad) {
+      setSubmitError("Debes declarar que el vehículo cumple la normativa vigente y que eres responsable de su uso durante el evento.");
+      return;
+    }
+
     try {
       setSubmitting(true);
       const fd = new FormData();
@@ -119,10 +134,13 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
       const payload = {
         eventId,
         name: name.trim(),
-        email: email.trim(),
+        apellido: apellido.trim(),
         telefono: telefono.trim(),
         modelo_coche: modelo.trim(),
         matricula: matricula.trim(),
+        anio_fabricacion: anioFabricacion.trim(),
+        mostrar_publicamente: mostrarPublicamente,
+        consentimiento_privacidad: aceptaPrivacidad,
         imagen_url: finalImageUrl,
       };
 
@@ -153,10 +171,14 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
 
       setSubmitMsg("Registro enviado correctamente");
       setName("");
-      setEmail("");
+      setApellido("");
       setTelefono("");
       setModelo("");
       setMatricula("");
+      setAnioFabricacion("");
+      setMostrarPublicamente(true);
+      setAceptaPrivacidad(false);
+      setAceptaResponsabilidad(false);
       // Limpieza de preview si venía de archivo
       if (preview) {
         URL.revokeObjectURL(preview);
@@ -197,16 +219,15 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
       />
       {fieldErrors.name && <p className="text-xs text-red-500">{fieldErrors.name}</p>}
       <input
-        type="email"
         className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-red-700"
-        placeholder="Correo electrónico"
+        placeholder="Apellido"
         style={{ borderColor: "var(--border)", boxShadow: "0 0 0 0 rgba(0,0,0,0)" }}
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        value={apellido}
+        onChange={(e) => setApellido(e.target.value)}
         disabled={isDisabled}
         required
       />
-      {fieldErrors.email && <p className="text-xs text-red-500">{fieldErrors.email}</p>}
+      {fieldErrors.apellido && <p className="text-xs text-red-500">{fieldErrors.apellido}</p>}
       <input
         className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-red-700"
         placeholder="Teléfono"
@@ -237,6 +258,17 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
         required
       />
       {fieldErrors.matricula && <p className="text-xs text-red-500">{fieldErrors.matricula}</p>}
+      <input
+        type="number"
+        className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-red-700"
+        placeholder="Año de fabricación (ej. 1990)"
+        style={{ borderColor: "var(--border)", boxShadow: "0 0 0 0 rgba(0,0,0,0)" }}
+        value={anioFabricacion}
+        onChange={(e) => setAnioFabricacion(e.target.value)}
+        disabled={isDisabled}
+        required
+      />
+      {fieldErrors.anio_fabricacion && <p className="text-xs text-red-500">{fieldErrors.anio_fabricacion}</p>}
 
       {/* Sección de imagen */}
       <div className="grid gap-2">
@@ -269,7 +301,46 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
       </button>
       {submitMsg && <p className="text-green-600 text-sm">{submitMsg}</p>}
       {submitError && <p className="text-red-600 text-sm">{submitError}</p>}
-      <p className="text-muted text-xs">Al enviar aceptas nuestras condiciones y política de privacidad.</p>
+      <div className="space-y-2 text-xs text-muted">
+        <label className="flex items-start gap-2">
+          <input
+            type="checkbox"
+            className="mt-0.5"
+            checked={aceptaPrivacidad}
+            onChange={(e) => setAceptaPrivacidad(e.target.checked)}
+            disabled={isDisabled}
+          />
+          <span>
+            He leído y acepto la{" "}
+            <Link href="/politica-privacidad" className="underline">
+              Política de Privacidad
+            </Link>
+            .
+          </span>
+        </label>
+        <label className="flex items-start gap-2">
+          <input
+            type="checkbox"
+            className="mt-0.5"
+            checked={aceptaResponsabilidad}
+            onChange={(e) => setAceptaResponsabilidad(e.target.checked)}
+            disabled={isDisabled}
+          />
+          <span>
+            Declaro que el vehículo inscrito cumple la normativa vigente y que soy responsable de su uso durante el evento.
+          </span>
+        </label>
+        <label className="flex items-start gap-2">
+          <input
+            type="checkbox"
+            className="mt-0.5"
+            checked={mostrarPublicamente}
+            onChange={(e) => setMostrarPublicamente(e.target.checked)}
+            disabled={isDisabled}
+          />
+          <span>Autorizo a que mi vehículo aparezca públicamente en el listado de inscritos y en la galería del evento.</span>
+        </label>
+      </div>
     </form>
   );
 }

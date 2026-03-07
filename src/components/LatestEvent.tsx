@@ -58,7 +58,7 @@ export default function LatestEvent({ instagramUrl = "#" }: { instagramUrl?: str
     return (
       <div className="card-dark p-6 lg:p-8 flex items-start gap-4">
         <div className="relative w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-muted/30">
-          <Image src="/images/principal.jpeg" alt="Clásicos Esquivias" fill className="object-cover" />
+          <Image src="/images/principal.jpeg" alt="Clásicos Esquivias" fill className="object-contain" />
         </div>
         <div className="space-y-2">
           <h3 className="text-lg font-semibold">Estamos organizando el siguiente evento</h3>
@@ -78,7 +78,7 @@ export default function LatestEvent({ instagramUrl = "#" }: { instagramUrl?: str
     <div className="card-dark p-6 lg:p-8 flex flex-col gap-5">
       {event.imagen_principal_url && (
         <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
-          <Image src={event.imagen_principal_url} alt={event.title} fill className="object-cover" />
+          <Image src={event.imagen_principal_url} alt={event.title} fill className="object-contain" />
         </div>
       )}
       <div className="space-y-1">

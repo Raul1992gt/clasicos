@@ -36,10 +36,12 @@ export async function POST(req: NextRequest) {
         const evTitle = r.event?.title ?? "(Sin título)";
         const evDate = r.event?.startAt ? new Date(r.event.startAt).toLocaleString("es-ES") : "";
         doc.fontSize(10).text(`Evento: ${evTitle} (${evDate})`);
-        doc.text(`Nombre: ${r.name}`);
-        doc.text(`Email: ${r.email}`);
-        doc.text(`Modelo: ${r.modelo_coche}`);
+        const nombreCompleto = r.apellido ? `${r.name} ${r.apellido}` : r.name;
+        doc.text(`Nombre: ${nombreCompleto}`);
+        doc.text(`Marca y modelo: ${r.modelo_coche}`);
         doc.text(`Matrícula: ${r.matricula}`);
+        doc.text(`Año de fabricación: ${r.anio_fabricacion}`);
+        doc.text(`Teléfono: ${r.telefono}`);
         doc.text(`Alta: ${new Date(r.createdAt).toLocaleString("es-ES")}`);
         doc.moveDown();
       });

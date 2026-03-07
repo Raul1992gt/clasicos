@@ -89,9 +89,12 @@ export default function Home() {
 
     // Siempre añadimos también las fotos de inscritos, para combinarlas
     try {
-      const res = await fetch(`/api/registrations?eventId=${encodeURIComponent(ev.id)}&page=1&pageSize=100`, {
+      const res = await fetch(
+        `/api/registrations?eventId=${encodeURIComponent(ev.id)}&page=1&pageSize=100&publicOnly=1`,
+        {
         cache: "no-store",
-      });
+        }
+      );
       if (res.ok) {
         const data = await res.json();
         const items = Array.isArray(data.items) ? data.items : [];
@@ -136,8 +139,8 @@ export default function Home() {
       const maxRegs = data.event && typeof data.event.maxRegistrations === "number" ? data.event.maxRegistrations : null;
       const mapped = items.map((r: any) => ({
         src: r.imagen_url || undefined,
-        title: r.name || "Inscrito",
-        meta: r.modelo_coche || r.email || "",
+        title: r.apellido ? `${r.name} ${r.apellido}` : r.name || "Inscrito",
+        meta: r.modelo_coche || "",
       }));
       setAttendeesItems(mapped);
       setCurrentRegistrationsTotal(total);
@@ -216,7 +219,7 @@ export default function Home() {
           <div className="event-panel-inner grid gap-7 lg:gap-10 md:grid-cols-2">
             {/* Destacado dinámico del próximo evento o fallback */}
             <RevealOnScroll>
-              <LatestEvent instagramUrl="#" />
+              <LatestEvent instagramUrl="https://www.instagram.com/clasicos25esquivias?igsh=c3ozeTJlaWtoMW5z" />
             </RevealOnScroll>
 
             {/* Formulario registro */}
@@ -276,7 +279,7 @@ export default function Home() {
                   <article className="card-dark p-6 space-y-4">
                   {mainImg && (
                     <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
-                      <Image src={mainImg} alt={title} fill className="object-cover" />
+                      <Image src={mainImg} alt={title} fill className="object-contain" />
                     </div>
                   )}
                   <div className="flex items-center justify-between">

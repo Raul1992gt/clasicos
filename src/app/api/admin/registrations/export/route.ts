@@ -21,25 +21,19 @@ export async function POST(req: NextRequest) {
     });
 
     const header = [
-      "eventId",
-      "eventTitle",
-      "eventStartAt",
-      "name",
-      "email",
-      "modelo_coche",
-      "matricula",
-      "createdAt",
+      "Nombre y Apellido",
+      "Marca y modelo",
+      "Matrícula",
+      "Año de fabricación",
+      "Teléfono",
     ];
 
     const rows = registrations.map((r) => [
-      r.eventId,
-      r.event?.title ?? "",
-      r.event?.startAt.toISOString() ?? "",
-      r.name,
-      r.email,
+      `${r.name}${r.apellido ? ` ${r.apellido}` : ""}`,
       r.modelo_coche,
       r.matricula,
-      r.createdAt.toISOString(),
+      r.anio_fabricacion,
+      r.telefono,
     ]);
 
     const escape = (value: string) => {
