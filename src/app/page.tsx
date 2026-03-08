@@ -139,7 +139,7 @@ export default function Home() {
       const maxRegs = data.event && typeof data.event.maxRegistrations === "number" ? data.event.maxRegistrations : null;
       const mapped = items.map((r: any) => ({
         src: r.imagen_url || undefined,
-        title: r.apellido ? `${r.name} ${r.apellido}` : r.name || "Inscrito",
+        title: r.apellido ? `${r.name} ${r.apellido.charAt(0).toUpperCase()}.` : r.name || "Inscrito",
         meta: r.modelo_coche || "",
       }));
       setAttendeesItems(mapped);

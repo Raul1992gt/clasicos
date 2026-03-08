@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import Container from "@/components/Container";
 
-const WHATSAPP_URL = "https://wa.me/34686308866";
+const WHATSAPP_URL = "https://wa.me/34611962701";
 const INSTAGRAM_URL = "https://www.instagram.com/clasicos25esquivias?igsh=c3ozeTJlaWtoMW5z";
 
 export default function Navbar() {

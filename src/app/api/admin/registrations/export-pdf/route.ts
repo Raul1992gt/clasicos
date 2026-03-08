@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
       registrations.forEach((r) => {
         const evTitle = r.event?.title ?? "(Sin título)";
-        const evDate = r.event?.startAt ? new Date(r.event.startAt).toLocaleString("es-ES") : "";
+        const evDate = r.event?.startAt ? new Date(r.event.startAt).toLocaleDateString("es-ES") : "";
         doc.fontSize(10).text(`Evento: ${evTitle} (${evDate})`);
         const nombreCompleto = r.apellido ? `${r.name} ${r.apellido}` : r.name;
         doc.text(`Nombre: ${nombreCompleto}`);
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
         doc.text(`Matrícula: ${r.matricula}`);
         doc.text(`Año de fabricación: ${r.anio_fabricacion}`);
         doc.text(`Teléfono: ${r.telefono}`);
-        doc.text(`Alta: ${new Date(r.createdAt).toLocaleString("es-ES")}`);
+        doc.text(`Alta: ${new Date(r.createdAt).toLocaleDateString("es-ES")}`);
         doc.moveDown();
       });
 
