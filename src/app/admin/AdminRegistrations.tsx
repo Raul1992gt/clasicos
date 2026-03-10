@@ -9,6 +9,8 @@ interface RegistrationItem {
   name: string;
   modelo_coche: string;
   matricula: string;
+  anio_fabricacion: number;
+  mostrar_publicamente: boolean;
   createdAt: string;
   event?: {
     title: string;
@@ -32,6 +34,8 @@ export default function AdminRegistrations() {
   const [editMatricula, setEditMatricula] = useState("");
   const [editImageUploading, setEditImageUploading] = useState(false);
   const [deleting, setDeleting] = useState<RegistrationItem | null>(null);
+  const [editAnio, setEditAnio] = useState<number>(1900);
+  const [editMostrarPublicamente, setEditMostrarPublicamente] = useState(false);
 
   async function loadWithFilters(targetPage: number, targetEventTitle: string) {
     try {
@@ -173,6 +177,8 @@ export default function AdminRegistrations() {
                             setEditName(r.name ?? "");
                             setEditModelo(r.modelo_coche ?? "");
                             setEditMatricula(r.matricula ?? "");
+                            setEditAnio(r.anio_fabricacion ?? 1900);
+                            setEditMostrarPublicamente(r.mostrar_publicamente ?? false);
                           }}
                         >
                           Editar
@@ -223,20 +229,24 @@ export default function AdminRegistrations() {
 
       {editing && (
         <EditRegistrationModal
-          item={editing}
-          name={editName}
-          setName={setEditName}
-          modelo={editModelo}
-          setModelo={setEditModelo}
-          matricula={editMatricula}
-          setMatricula={setEditMatricula}
-          uploadingImage={editImageUploading}
-          setUploadingImage={setEditImageUploading}
-          onClose={() => setEditing(null)}
-          onSaved={() => {
-            setEditing(null);
-            void load();
-          }}
+        item={editing}
+        name={editName}
+        setName={setEditName}
+        modelo={editModelo}
+        setModelo={setEditModelo}
+        matricula={editMatricula}
+        setMatricula={setEditMatricula}
+        anio={editAnio}
+        setAnio={setEditAnio}
+        mostrarPublicamente={editMostrarPublicamente}
+        setMostrarPublicamente={setEditMostrarPublicamente}
+        uploadingImage={editImageUploading}
+        setUploadingImage={setEditImageUploading}
+        onClose={() => setEditing(null)}
+        onSaved={() => {
+          setEditing(null);
+          void load();
+        }}
         />
       )}
       {deleting && (
@@ -261,8 +271,16 @@ interface EditModalProps {
   setModelo: (v: string) => void;
   matricula: string;
   setMatricula: (v: string) => void;
+
+  anio: number;
+  setAnio: (v: number) => void;
+
+  mostrarPublicamente: boolean;
+  setMostrarPublicamente: (v: boolean) => void;
+
   uploadingImage: boolean;
   setUploadingImage: (v: boolean) => void;
+
   onClose: () => void;
   onSaved: () => void;
 }
@@ -275,6 +293,10 @@ function EditRegistrationModal({
   setModelo,
   matricula,
   setMatricula,
+  anio,
+  setAnio,
+  mostrarPublicamente,
+  setMostrarPublicamente,
   uploadingImage,
   setUploadingImage,
   onClose,
@@ -295,6 +317,8 @@ function EditRegistrationModal({
           name,
           modelo_coche: modelo,
           matricula,
+          anio_fabricacion: anio,
+          mostrar_publicamente: mostrarPublicamente,
         }),
       });
       const data = await res.json();
@@ -372,6 +396,22 @@ function EditRegistrationModal({
                 onChange={(e) => setMatricula(e.target.value)}
                 required
               />
+              <input
+                type="number"
+                className="bg-transparent border rounded-lg px-3 py-2 text-sm"
+                placeholder="Año de fabricación"
+                value={anio}
+                onChange={(e) => setAnio(Number(e.target.value))}
+                required
+              />
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={mostrarPublicamente}
+                  onChange={(e) => setMostrarPublicamente(e.target.checked)}
+                />
+                Mostrar públicamente
+              </label>
 
               <div className="grid gap-2">
                 <span className="text-xs text-muted">Imagen del coche</span>
