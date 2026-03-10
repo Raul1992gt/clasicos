@@ -459,7 +459,7 @@ function ConfirmDeleteRegistrationModal({ item, onCancel, onDeleted }: ConfirmDe
     try {
       setSaving(true);
       setError(null);
-      const res = await fetch(`/api/admin/registrations/${item.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/registrations/${item.id}`, { method: "DELETE" });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
         throw new Error(data?.error || "No se pudo eliminar el inscrito");
