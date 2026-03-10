@@ -76,7 +76,7 @@ export default function AdminEvents() {
     }
   }
 
-  async function onDownloadCsv() {
+  async function onDownloadExcel() {
     try {
       const body = selectedIds.length > 0 ? { eventIds: selectedIds } : {};
       const res = await fetch("/api/admin/registrations/export", {
@@ -84,21 +84,25 @@ export default function AdminEvents() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
+  
       if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.error || "No se pudo generar el CSV");
+        throw new Error(data?.error || "No se pudo generar el Excel");
       }
+  
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
+  
       const a = document.createElement("a");
       a.href = url;
-      a.download = "inscritos.csv";
+      a.download = "inscritos.xlsx";
       document.body.appendChild(a);
       a.click();
       a.remove();
+  
       URL.revokeObjectURL(url);
     } catch (err: any) {
-      alert(err?.message || "Error descargando CSV");
+      alert(err?.message || "Error descargando Excel");
     }
   }
 
@@ -163,10 +167,10 @@ export default function AdminEvents() {
                 <button
                   type="button"
                   className="w-full text-left text-xs px-2 py-1 hover:bg-muted/20 rounded"
-                  onClick={onDownloadCsv}
+                  onClick={onDownloadExcel}
                   disabled={loading}
                 >
-                  CSV
+                  Excel
                 </button>
                 <button
                   type="button"
