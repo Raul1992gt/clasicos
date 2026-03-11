@@ -5,23 +5,24 @@ import prisma from "@/lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 export const runtime = "nodejs";
-const currentYear = new Date().getFullYear();
 
-const RegistrationSchema = z.object({
+export const RegistrationSchema = z.object({
   eventId: z.string().uuid(),
-  name: z.string().min(1).max(200),
-  apellido: z.string().min(1).max(200),
-  telefono: z.string().min(3).max(50),
-  modelo_coche: z.string().min(1).max(200),
-  matricula: z.string().min(3).max(50),
+  name: z.string().min(1, "El nombre es obligatorio"),
+  apellido: z.string().optional(),
+  telefono: z.string().min(1, "El teléfono es obligatorio"),
+  modelo_coche: z.string().min(1, "Marca y modelo son obligatorios"),
+  matricula: z.string().min(1, "La matrícula es obligatoria"),
   anio_fabricacion: z
     .coerce.number()
     .int()
     .min(1900)
-    .max(currentYear + 1),
+    .max(new Date().getFullYear() + 1)
+    .optional(),
+  poblacion_provincia: z.string().optional(),
   mostrar_publicamente: z.boolean().optional(),
   consentimiento_privacidad: z.boolean(),
-  imagen_url: z.string().url().max(2000).optional().nullable(),
+  imagen_url: z.string().url().optional().nullable(),
 });
 
 export async function GET(req: NextRequest) {
@@ -81,6 +82,7 @@ export async function POST(req: NextRequest) {
       modelo_coche,
       matricula,
       anio_fabricacion,
+      poblacion_provincia,
       mostrar_publicamente,
       consentimiento_privacidad,
       imagen_url,
@@ -115,7 +117,8 @@ export async function POST(req: NextRequest) {
         telefono,
         modelo_coche,
         matricula,
-        anio_fabricacion,
+        anio_fabricacion: Number(anio_fabricacion) || 1900,
+        poblacion_provincia: poblacion_provincia ?? "",
         mostrar_publicamente: mostrar_publicamente ?? true,
         consentimiento_privacidad: true,
         fecha_consentimiento: new Date(),

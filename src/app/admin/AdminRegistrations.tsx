@@ -7,9 +7,11 @@ interface RegistrationItem {
   id: string;
   eventId: string;
   name: string;
+  apellido: string;
   modelo_coche: string;
   matricula: string;
   anio_fabricacion: number;
+  poblacion_provincia: string;
   mostrar_publicamente: boolean;
   createdAt: string;
   event?: {
@@ -30,8 +32,10 @@ export default function AdminRegistrations() {
   const [initialized, setInitialized] = useState(false);
   const [editing, setEditing] = useState<RegistrationItem | null>(null);
   const [editName, setEditName] = useState("");
+  const [editApellido, setEditApellido] = useState("");
   const [editModelo, setEditModelo] = useState("");
   const [editMatricula, setEditMatricula] = useState("");
+  const [editPoblacionProvincia, setEditPoblacionProvincia] = useState("");
   const [editImageUploading, setEditImageUploading] = useState(false);
   const [deleting, setDeleting] = useState<RegistrationItem | null>(null);
   const [editAnio, setEditAnio] = useState<number>(1900);
@@ -141,61 +145,69 @@ export default function AdminRegistrations() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs text-muted border-b" style={{ borderColor: "var(--border)" }}>
-                <th className="py-2 pr-2">Fecha evento</th>
-                <th className="py-2 pr-2">Evento</th>
-                <th className="py-2 pr-2">Nombre</th>
-                <th className="py-2 pr-2">Marca y modelo</th>
-                <th className="py-2 pr-2">Matrícula</th>
-                <th className="py-2 pr-2">Acciones</th>
-              </tr>
+            <tr className="text-left text-xs text-muted border-b" style={{ borderColor: "var(--border)" }}>
+              <th className="py-2 pr-2">Fecha evento</th>
+              <th className="py-2 pr-2">Evento</th>
+              <th className="py-2 pr-2">Nombre</th>
+              <th className="py-2 pr-2">Apellido</th>
+              <th className="py-2 pr-2">Marca y modelo</th>
+              <th className="py-2 pr-2">Matrícula</th>
+              <th className="py-2 pr-2">Año fabricación</th>
+              <th className="py-2 pr-2">Población / Provincia</th>
+              <th className="py-2 pr-2">Acciones</th>
+            </tr>
             </thead>
             <tbody>
-              {items.map((r) => {
-                const createdDate = new Date(r.createdAt);
-                const eventDate = r.event?.startAt ? new Date(r.event.startAt) : null;
-                const eventTitle = r.event?.title ?? r.eventId ?? "(Sin título)";
-                return (
-                  <tr key={r.id} className="border-b last:border-b-0" style={{ borderColor: "var(--border)" }}>
-                    <td className="py-1.5 pr-2 align-top whitespace-nowrap text-xs">
-                      {eventDate
-                        ? eventDate.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" })
-                        : createdDate.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" })}
-                    </td>
-                    <td className="py-1.5 pr-2 align-top text-xs break-all">{eventTitle}</td>
-                    <td className="py-1.5 pr-2 align-top">{r.name}</td>
-                    <td className="py-1.5 pr-2 align-top">{r.modelo_coche}</td>
-                    <td className="py-1.5 pr-2 align-top">{r.matricula}</td>
-                    <td className="py-1.5 pr-2 align-top text-xs">
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          className="border rounded px-2 py-1"
-                          style={{ borderColor: "var(--border)" }}
-                          onClick={() => {
-                            setEditing(r);
-                            setEditName(r.name ?? "");
-                            setEditModelo(r.modelo_coche ?? "");
-                            setEditMatricula(r.matricula ?? "");
-                            setEditAnio(r.anio_fabricacion ?? 1900);
-                            setEditMostrarPublicamente(r.mostrar_publicamente ?? false);
-                          }}
-                        >
-                          Editar
-                        </button>
-                        <button
-                          type="button"
-                          className="border rounded px-2 py-1 text-red-500"
-                          style={{ borderColor: "var(--border)" }}
-                          onClick={() => setDeleting(r)}
-                        >
-                          Eliminar
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+            {items.map((r) => {
+              const createdDate = new Date(r.createdAt);
+              const eventDate = r.event?.startAt ? new Date(r.event.startAt) : null;
+              const eventTitle = r.event?.title ?? r.eventId ?? "(Sin título)";
+              return (
+                <tr key={r.id} className="border-b last:border-b-0" style={{ borderColor: "var(--border)" }}>
+                  <td className="py-1.5 pr-2 align-top whitespace-nowrap text-xs">
+                    {eventDate
+                      ? eventDate.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" })
+                      : createdDate.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" })}
+                  </td>
+                  <td className="py-1.5 pr-2 align-top text-xs break-all">{eventTitle}</td>
+                  <td className="py-1.5 pr-2 align-top">{r.name}</td>
+                  <td className="py-1.5 pr-2 align-top">{r.apellido ?? "-"}</td>
+                  <td className="py-1.5 pr-2 align-top">{r.modelo_coche}</td>
+                  <td className="py-1.5 pr-2 align-top">{r.matricula}</td>
+                  <td className="py-1.5 pr-2 align-top">{r.anio_fabricacion ?? "-"}</td>
+                  <td className="py-1.5 pr-2 align-top">{r.poblacion_provincia ?? "-"}</td>
+                  <td className="py-1.5 pr-2 align-top text-xs">
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        className="border rounded px-2 py-1"
+                        style={{ borderColor: "var(--border)" }}
+                        onClick={() => {
+                          setEditing(r);
+                          setEditName(r.name ?? "");
+                          setEditApellido(r.apellido ?? "");
+                          setEditModelo(r.modelo_coche ?? "");
+                          setEditMatricula(r.matricula ?? "");
+                          setEditAnio(r.anio_fabricacion ?? 1900);
+                          setEditPoblacionProvincia(r.poblacion_provincia ?? "");
+                          setEditMostrarPublicamente(r.mostrar_publicamente ?? false);
+                        }}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        className="border rounded px-2 py-1 text-red-500"
+                        style={{ borderColor: "var(--border)" }}
+                        onClick={() => setDeleting(r)}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
             </tbody>
           </table>
         </div>
@@ -229,21 +241,25 @@ export default function AdminRegistrations() {
 
       {editing && (
         <EditRegistrationModal
-        item={editing}
-        name={editName}
-        setName={setEditName}
-        modelo={editModelo}
-        setModelo={setEditModelo}
-        matricula={editMatricula}
-        setMatricula={setEditMatricula}
-        anio={editAnio}
-        setAnio={setEditAnio}
-        mostrarPublicamente={editMostrarPublicamente}
-        setMostrarPublicamente={setEditMostrarPublicamente}
-        uploadingImage={editImageUploading}
-        setUploadingImage={setEditImageUploading}
-        onClose={() => setEditing(null)}
-        onSaved={() => {
+          item={editing}
+          name={editName}
+          apellido={editApellido}
+          setApellido={setEditApellido}
+          setName={setEditName}
+          modelo={editModelo}
+          setModelo={setEditModelo}
+          matricula={editMatricula}
+          setMatricula={setEditMatricula}
+          anio={editAnio}
+          setAnio={setEditAnio}
+          mostrarPublicamente={editMostrarPublicamente}
+          setMostrarPublicamente={setEditMostrarPublicamente}
+          uploadingImage={editImageUploading}
+          setUploadingImage={setEditImageUploading}
+          poblacionProvincia={editPoblacionProvincia}
+          setPoblacionProvincia={setEditPoblacionProvincia}
+          onClose={() => setEditing(null)}
+          onSaved={() => {
           setEditing(null);
           void load();
         }}
@@ -267,6 +283,10 @@ interface EditModalProps {
   item: RegistrationItem;
   name: string;
   setName: (v: string) => void;
+
+  apellido: string;
+  setApellido: (v: string) => void;
+
   modelo: string;
   setModelo: (v: string) => void;
   matricula: string;
@@ -281,6 +301,9 @@ interface EditModalProps {
   uploadingImage: boolean;
   setUploadingImage: (v: boolean) => void;
 
+  poblacionProvincia: string;
+  setPoblacionProvincia: (v: string) => void;
+
   onClose: () => void;
   onSaved: () => void;
 }
@@ -289,10 +312,14 @@ function EditRegistrationModal({
   item,
   name,
   setName,
+  apellido,
+  setApellido,
   modelo,
   setModelo,
   matricula,
   setMatricula,
+  poblacionProvincia,
+  setPoblacionProvincia,
   anio,
   setAnio,
   mostrarPublicamente,
@@ -314,10 +341,12 @@ function EditRegistrationModal({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
+          name: name,
+          apellido: apellido,
           modelo_coche: modelo,
-          matricula,
+          matricula: matricula,
           anio_fabricacion: anio,
+          poblacion_provincia: poblacionProvincia,
           mostrar_publicamente: mostrarPublicamente,
         }),
       });
@@ -325,6 +354,7 @@ function EditRegistrationModal({
       if (!res.ok) {
         throw new Error(data?.error || "No se pudo guardar el registro");
       }
+      console.log(data)
       onSaved();
     } catch (err: any) {
       setError(err?.message || "Error inesperado");
@@ -384,6 +414,12 @@ function EditRegistrationModal({
               />
               <input
                 className="bg-transparent border rounded-lg px-3 py-2 text-sm"
+                placeholder="Apellido"
+                value={apellido}
+                onChange={(e) => setApellido(e.target.value)}
+              />
+              <input
+                className="bg-transparent border rounded-lg px-3 py-2 text-sm"
                 placeholder="Marca y modelo del coche"
                 value={modelo}
                 onChange={(e) => setModelo(e.target.value)}
@@ -403,6 +439,12 @@ function EditRegistrationModal({
                 value={anio}
                 onChange={(e) => setAnio(Number(e.target.value))}
                 required
+              />
+              <input
+                className="bg-transparent border rounded-lg px-3 py-2 text-sm"
+                placeholder="Población / Provincia"
+                value={poblacionProvincia}
+                onChange={(e) => setPoblacionProvincia(e.target.value)}
               />
               <label className="flex items-center gap-2 text-sm">
                 <input

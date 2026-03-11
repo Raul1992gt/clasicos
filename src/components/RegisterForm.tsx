@@ -11,7 +11,7 @@ interface RegisterFormProps {
 export default function RegisterForm({ onRegistered, disabled = false }: RegisterFormProps) {
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
-
+  const [imageError, setImageError] = useState<string | null>(null);
   // Campos del formulario
   const [name, setName] = useState("");
   const [apellido, setApellido] = useState("");
@@ -19,6 +19,7 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
   const [modelo, setModelo] = useState("");
   const [matricula, setMatricula] = useState("");
   const [anioFabricacion, setAnioFabricacion] = useState("");
+  const [poblacionProvincia, setPoblacionProvincia] = useState("");
   const [mostrarPublicamente, setMostrarPublicamente] = useState(true);
   const [aceptaPrivacidad, setAceptaPrivacidad] = useState(false);
   const [aceptaResponsabilidad, setAceptaResponsabilidad] = useState(false);
@@ -98,9 +99,17 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
       return;
     }
 
-    if (!file) {
-      setSubmitError("Debes seleccionar una imagen del coche para continuar.");
+    if (!name || !telefono || !modelo || !matricula) {
+      setSubmitError("Completa todos los campos obligatorios.");
       return;
+    }
+
+    if (!file) {
+      setImageError("Debes seleccionar una imagen del coche para continuar.");
+      setSubmitError(null); // opcional, para que no se mezclen mensajes
+      return;
+    } else {
+      setImageError(null); // limpiar si ya había
     }
 
     if (!aceptaPrivacidad) {
@@ -138,10 +147,11 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
         telefono: telefono.trim(),
         modelo_coche: modelo.trim(),
         matricula: matricula.trim(),
-        anio_fabricacion: anioFabricacion.trim(),
+        anio_fabricacion: Number(anioFabricacion) || undefined,
+        poblacion_provincia: poblacionProvincia.trim() || undefined,
         mostrar_publicamente: mostrarPublicamente,
         consentimiento_privacidad: aceptaPrivacidad,
-        imagen_url: finalImageUrl,
+        imagen_url: finalImageUrl ?? undefined,
       };
 
       const res = await fetch("/api/registrations", {
@@ -176,6 +186,7 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
       setModelo("");
       setMatricula("");
       setAnioFabricacion("");
+      setPoblacionProvincia("");
       setMostrarPublicamente(true);
       setAceptaPrivacidad(false);
       setAceptaResponsabilidad(false);
@@ -208,29 +219,28 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
         </div>
       )}
 
-      <input
-        className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-red-700"
-        placeholder="Nombre"
-        style={{ borderColor: "var(--border)", boxShadow: "0 0 0 0 rgba(0,0,0,0)" }}
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        disabled={isDisabled}
-        required
-      />
+      <div className="grid grid-cols-2 gap-3">
+        <input
+          className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white w-full"
+          placeholder="Nombre*"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          disabled={isDisabled}
+          required
+        />
+
+        <input
+          className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white w-full"
+          placeholder="Apellido"
+          value={apellido}
+          onChange={(e) => setApellido(e.target.value)}
+          disabled={isDisabled}
+        />
+      </div>
       {fieldErrors.name && <p className="text-xs text-red-500">{fieldErrors.name}</p>}
       <input
         className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-red-700"
-        placeholder="Apellido"
-        style={{ borderColor: "var(--border)", boxShadow: "0 0 0 0 rgba(0,0,0,0)" }}
-        value={apellido}
-        onChange={(e) => setApellido(e.target.value)}
-        disabled={isDisabled}
-        required
-      />
-      {fieldErrors.apellido && <p className="text-xs text-red-500">{fieldErrors.apellido}</p>}
-      <input
-        className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-red-700"
-        placeholder="Teléfono"
+        placeholder="Teléfono*"
         style={{ borderColor: "var(--border)", boxShadow: "0 0 0 0 rgba(0,0,0,0)" }}
         value={telefono}
         onChange={(e) => setTelefono(e.target.value)}
@@ -240,7 +250,7 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
       {fieldErrors.telefono && <p className="text-xs text-red-500">{fieldErrors.telefono}</p>}
       <input
         className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-red-700"
-        placeholder="Marca y modelo del coche"
+        placeholder="Marca y modelo del coche*"
         style={{ borderColor: "var(--border)", boxShadow: "0 0 0 0 rgba(0,0,0,0)" }}
         value={modelo}
         onChange={(e) => setModelo(e.target.value)}
@@ -248,27 +258,37 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
         required
       />
       {fieldErrors.modelo_coche && <p className="text-xs text-red-500">{fieldErrors.modelo_coche}</p>}
-      <input
-        className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-red-700"
-        placeholder="Matrícula"
-        style={{ borderColor: "var(--border)", boxShadow: "0 0 0 0 rgba(0,0,0,0)" }}
-        value={matricula}
-        onChange={(e) => setMatricula(e.target.value)}
-        disabled={isDisabled}
-        required
-      />
+      <div className="grid grid-cols-2 gap-3">
+        <input
+          className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white w-full"
+          placeholder="Matrícula*"
+          value={matricula}
+          onChange={(e) => setMatricula(e.target.value)}
+          disabled={isDisabled}
+          required
+        />
+
+        <input
+          type="number"
+          className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white w-full"
+          placeholder="Año"
+          value={anioFabricacion}
+          onChange={(e) => setAnioFabricacion(e.target.value)}
+          disabled={isDisabled}
+        />
+      </div>
       {fieldErrors.matricula && <p className="text-xs text-red-500">{fieldErrors.matricula}</p>}
-      <input
-        type="number"
-        className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-red-700"
-        placeholder="Año de fabricación (ej. 1990)"
-        style={{ borderColor: "var(--border)", boxShadow: "0 0 0 0 rgba(0,0,0,0)" }}
-        value={anioFabricacion}
-        onChange={(e) => setAnioFabricacion(e.target.value)}
-        disabled={isDisabled}
-        required
-      />
-      {fieldErrors.anio_fabricacion && <p className="text-xs text-red-500">{fieldErrors.anio_fabricacion}</p>}
+      {/* Población y Provincia */}
+      <div>
+        <input
+          className="bg-[#111111] border border-zinc-400 rounded-lg px-3 py-2 text-white w-full"
+          placeholder="Población y Provincia"
+          value={poblacionProvincia}
+          onChange={(e) => setPoblacionProvincia(e.target.value)}
+          disabled={isDisabled}
+        />
+      </div>
+      {fieldErrors.poblacion_provincia && <p className="text-xs text-red-500">{fieldErrors.poblacion_provincia}</p>}
 
       {/* Sección de imagen */}
       <div className="grid gap-2">
@@ -290,10 +310,10 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
               onChange={onFileChange}
               className="hidden"
               disabled={isDisabled}
-              required
             />
           </label>
         </div>
+        {imageError && <p className="text-xs text-red-500">{imageError}</p>}
       </div>
 
       <button type="submit" className="btn-accent px-4 py-2" disabled={isDisabled}>

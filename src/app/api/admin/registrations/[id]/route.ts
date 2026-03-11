@@ -11,22 +11,29 @@ export async function PATCH(_req: NextRequest, { params }: { params: Promise<{ i
 
     const {
       name,
+      apellido,
       email,
       modelo_coche,
       matricula,
       anio_fabricacion,
+      poblacion_provincia,
       mostrar_publicamente,
     } = body ?? {};
 
     const data: any = {};
 
     if (typeof name === "string") data.name = name.trim();
+    if (typeof apellido === "string") data.apellido = apellido.trim();
     if (typeof email === "string") data.email = email.trim();
     if (typeof modelo_coche === "string") data.modelo_coche = modelo_coche.trim();
     if (typeof matricula === "string") data.matricula = matricula.trim();
 
     if (typeof anio_fabricacion === "number") {
       data.anio_fabricacion = anio_fabricacion;
+    }
+
+    if (typeof poblacion_provincia === "string") {
+      data.poblacion_provincia = poblacion_provincia.trim();
     }
 
     if (typeof mostrar_publicamente === "boolean") {

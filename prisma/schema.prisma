@@ -45,6 +45,7 @@ model Registration {
   matricula             String   @unique
   modelo_coche          String
   anio_fabricacion      Int      @default(1900)
+  poblacion_provincia   String   @default("")
   mostrar_publicamente  Boolean  @default(true)
   consentimiento_privacidad Boolean @default(false)
   fecha_consentimiento  DateTime?

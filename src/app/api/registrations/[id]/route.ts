@@ -8,6 +8,13 @@ export const runtime = "nodejs";
 
 const RegistrationUpdateSchema = z.object({
   name: z.string().min(1).max(200).optional(),
+  apellido: z.string().optional(),
+  telefono: z.string().optional(),
+  modelo_coche: z.string().optional(),
+  matricula: z.string().optional(),
+  poblacion_provincia: z.string().optional(),
+  anio_fabricacion: z.number().optional(),
+  mostrar_publicamente: z.boolean().optional(),
 });
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -30,9 +37,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     const updated = await prisma.registration.update({
       where: { id },
-      data: {
-        ...("name" in data ? { name: data.name! } : {}),
-      },
+      data: data,
     });
 
     return NextResponse.json({ registration: updated });
