@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
       "Marca y modelo",
       "Matrícula",
       "Año de fabricación",
+      "Poblacion",
       "Teléfono",
     ];
 
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
       r.modelo_coche,
       r.matricula,
       r.anio_fabricacion,
+      r.poblacion_provincia,
       r.telefono,
     ]);
 
