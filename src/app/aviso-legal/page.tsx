@@ -12,13 +12,13 @@ export default function AvisoLegalPage() {
           pertenece a:
         </p>
         <p className="text-muted">
-          Responsable: [Nombre de la asociación, club o persona responsable]
+          Responsable: ASOC DE CLASICOS &gt;25 ESQUIVIAS
           <br />
-          NIF/CIF: [NIF o CIF si aplica]
+          CIF: G75935197
           <br />
-          Domicilio: [Dirección o localidad]
+          Domicilio: CALLE MALVAR, NUM 17
           <br />
-          Email de contacto: [correo electrónico]
+          Teléfono de contacto: 611 96 27 01
         </p>
         <p className="text-muted">
           Este sitio web tiene como finalidad facilitar la inscripción de participantes en

@@ -8,13 +8,13 @@ export default function PoliticaPrivacidadPage() {
       <section className="space-y-3 text-sm leading-relaxed">
         <h2 className="text-base font-medium">1. Responsable del tratamiento</h2>
         <p className="text-muted">
-          Responsable: [Nombre de la asociación, club o persona responsable]
+          Responsable: ASOC DE CLASICOS &gt;25 ESQUIVIAS
           <br />
-          NIF/CIF: [NIF o CIF si aplica]
+          CIF: G75935197
           <br />
-          Domicilio: [Dirección o localidad]
+          Domicilio: CALLE MALVAR, NUM 17
           <br />
-          Email de contacto: [correo electrónico]
+          Teléfono de contacto: 611 96 27 01
         </p>
         <p className="text-muted">
           El responsable del tratamiento garantiza la protección de los datos personales
