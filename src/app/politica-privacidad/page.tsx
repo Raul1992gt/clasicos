@@ -107,8 +107,7 @@ export default function PoliticaPrivacidadPage() {
           <li>Limitación u oposición al tratamiento</li>
         </ul>
         <p className="text-muted">
-          Para ejercer estos derechos, el usuario puede contactar mediante el correo
-          electrónico: [correo electrónico].
+          Para ejercer estos derechos, el usuario puede contactar mediante el número de teléfono: 611 96 27 01.
         </p>
       </section>
 
