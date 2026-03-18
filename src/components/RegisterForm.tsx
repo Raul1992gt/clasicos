@@ -6,9 +6,10 @@ import Link from "next/link";
 interface RegisterFormProps {
   onRegistered?: () => void;
   disabled?: boolean;
+  restrictToClassic?: boolean;
 }
 
-export default function RegisterForm({ onRegistered, disabled = false }: RegisterFormProps) {
+export default function RegisterForm({ onRegistered, disabled = false, restrictToClassic = false }: RegisterFormProps) {
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
@@ -91,6 +92,11 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
 
     if (!eventId) {
       setSubmitError("No hay un evento disponible para registrar.");
+      return;
+    }
+
+    if (restrictToClassic && Number(anioFabricacion) > 1995) {
+      setSubmitError("Solo se permiten coches de 1995 o anteriores");
       return;
     }
 
@@ -275,8 +281,14 @@ export default function RegisterForm({ onRegistered, disabled = false }: Registe
           value={anioFabricacion}
           onChange={(e) => setAnioFabricacion(e.target.value)}
           disabled={isDisabled}
+          max={restrictToClassic ? 1995 : undefined}
         />
       </div>
+      {restrictToClassic && (
+        <p className="text-xs text-yellow-500">
+          A partir de 85 inscritos, solo se admiten vehículos de 1995 o anteriores
+        </p>
+      )}
       {fieldErrors.matricula && <p className="text-xs text-red-500">{fieldErrors.matricula}</p>}
       {/* Población y Provincia */}
       <div>

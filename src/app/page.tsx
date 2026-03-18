@@ -22,6 +22,7 @@ export default function Home() {
   const [attendeesItems, setAttendeesItems] = useState<{ src: string; title: string; meta: string }[]>([]);
   const [attendeesLoading, setAttendeesLoading] = useState(true);
   const [attendeesError, setAttendeesError] = useState<string | null>(null);
+  const [restrictToClassic, setRestrictToClassic] = useState(false);
   const [pastItems, setPastItems] = useState<
     { id: string; title: string; description?: string | null; endAt?: string | null; imagen_principal_url?: string | null }[]
   >([]);
@@ -136,6 +137,7 @@ export default function Home() {
       const data = await res.json();
       const items = Array.isArray(data.items) ? data.items : [];
       const total = typeof data.total === "number" ? data.total : items.length;
+      const restrictToClassic = total >= 85;
       const maxRegs = data.event && typeof data.event.maxRegistrations === "number" ? data.event.maxRegistrations : null;
       const mapped = items.map((r: any) => ({
         src: r.imagen_url || undefined,
@@ -146,6 +148,7 @@ export default function Home() {
       setCurrentRegistrationsTotal(total);
       setCurrentMaxRegistrations(maxRegs);
       setAttendeesError(null);
+      setRestrictToClassic(total >= 85);
     } catch (_err: any) {
       setAttendeesError("No se pudieron cargar los inscritos");
     } finally {
@@ -231,7 +234,8 @@ export default function Home() {
                 ) : (
                   <RegisterForm
                     onRegistered={loadAttendees}
-                    disabled={currentMaxRegistrations !== null && currentRegistrationsTotal >= currentMaxRegistrations}
+                    disabled={isRegistrationClosed}
+                    restrictToClassic={currentRegistrationsTotal >= 81}
                   />
                 )}
               </div>

@@ -102,10 +102,23 @@ export async function POST(req: NextRequest) {
     }
 
     // Comprueba límite de inscripciones si maxRegistrations está definido
+    const currentCount = await prisma.registration.count({ where: { eventId } });
     if (typeof event.maxRegistrations === "number") {
-      const currentCount = await prisma.registration.count({ where: { eventId } });
       if (currentCount >= event.maxRegistrations) {
         return NextResponse.json({ error: "El evento ya ha alcanzado el número máximo de inscripciones" }, { status: 409 });
+      }
+    }
+
+    // 🔴 Restricción clásicos
+    const CLASSIC_THRESHOLD = 81;
+    const CLASSIC_YEAR_LIMIT = 1995;
+
+    if (currentCount >= CLASSIC_THRESHOLD) {
+      if (!anio_fabricacion || Number(anio_fabricacion) > CLASSIC_YEAR_LIMIT) {
+        return NextResponse.json(
+          { error: "Sólo se pueden inscribir vehículos de 1995 o anteriores" },
+          { status: 400 }
+        );
       }
     }
 
