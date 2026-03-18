@@ -286,7 +286,7 @@ export default function RegisterForm({ onRegistered, disabled = false, restrictT
       </div>
       {restrictToClassic && (
         <p className="text-xs text-yellow-500">
-          A partir de 85 inscritos, solo se admiten vehículos de 1995 o anteriores
+          Sólo se pueden inscribir vehículos de 1995 o anteriores.
         </p>
       )}
       {fieldErrors.matricula && <p className="text-xs text-red-500">{fieldErrors.matricula}</p>}
