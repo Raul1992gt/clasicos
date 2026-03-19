@@ -85,7 +85,7 @@ export default function LatestEvent({ instagramUrl = "#" }: { instagramUrl?: str
         <h3 className="text-lg font-semibold">{event.title}</h3>
         <p className="text-muted text-sm">{dateFmt.format(start)}</p>
         {event.description ? (
-          <p className="text-muted text-sm line-clamp-3">{event.description}</p>
+          <p className="text-muted text-sm">{event.description}</p>
         ) : null}
       </div>
       <div className="flex gap-3">
