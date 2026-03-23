@@ -227,24 +227,28 @@ export default function Home() {
 
             {/* Formulario registro */}
             <RevealOnScroll className="card-dark p-6 lg:p-7">
-              <div id="registro">
-                <h3 className="text-lg font-semibold mb-6">Nuevo Registro</h3>
-                {isRegistrationClosed ? (
-                  <div className="text-sm text-muted">Inscripciones cerradas, gracias a todos y nos vemos en breve.</div>
-                ) : (
+            <div id="registro">
+              {!isRegistrationClosed && (
+                <>
+                  <h3 className="text-lg font-semibold mb-6">Nuevo Registro</h3>
                   <RegisterForm
                     onRegistered={loadAttendees}
                     disabled={isRegistrationClosed}
                     restrictToClassic={currentRegistrationsTotal >= 81}
                   />
-                )}
-              </div>
+                </>
+              )}
+            </div>
             </RevealOnScroll>
           </div>
           {currentMaxRegistrations !== null && currentRegistrationsTotal >= currentMaxRegistrations && (
             <div className="mt-6 bg-black/70 text-white text-sm text-center rounded-lg px-4 py-3">
-              Inscripciones cerradas, gracias a todos y nos vemos en breve.
-            </div>
+            Inscripciones cerradas, muchas gracias a todos por vuestra confianza.
+            Si tienes un coche anterior a 1985 o algo muy peculiar llámanos al teléfono{" "}
+            <a href="tel:611962701" className="underline hover:text-gray-300">
+              611962701
+            </a>
+          </div>
           )}
         </div>
 
