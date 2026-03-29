@@ -72,7 +72,7 @@ export default function LatestEvent({ instagramUrl = "#" }: { instagramUrl?: str
   }
 
   const start = new Date(event.startAt);
-  const dateFmt = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" });
+  const dateFmt = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Madrid" });
 
   return (
     <div className="card-dark p-6 lg:p-8 flex flex-col gap-5">

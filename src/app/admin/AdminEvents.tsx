@@ -237,6 +237,13 @@ export default function AdminEvents() {
             <tbody>
               {items.map((ev) => {
                 const start = new Date(ev.startAt);
+
+                const formatted = new Intl.DateTimeFormat("es-ES", {
+                  dateStyle: "short",
+                  timeStyle: "short",
+                  timeZone: "Europe/Madrid"
+                }).format(start);
+
                 return (
                   <tr key={ev.id} className="border-b last:border-b-0" style={{ borderColor: "var(--border)" }}>
                     <td className="py-1.5 pr-2 align-top text-xs">
@@ -247,7 +254,7 @@ export default function AdminEvents() {
                       />
                     </td>
                     <td className="py-1.5 pr-2 align-top whitespace-nowrap text-xs">
-                      {start.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" })}
+                      {formatted}
                     </td>
                     <td className="py-1.5 pr-2 align-top">{ev.title}</td>
                     <td className="py-1.5 pr-2 align-top text-xs">{ev._count?.registrations ?? 0}</td>
@@ -357,18 +364,24 @@ interface EditEventModalProps {
   onUpdated: () => void | Promise<void>;
 }
 
+function toLocalInputValue(dateString: string) {
+  const d = new Date(dateString);
+
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 function EditEventModal({ event, onClose, onUpdated }: EditEventModalProps) {
   const [title, setTitle] = useState(event.title ?? "");
   const [description, setDescription] = useState("");
-  const [startAt, setStartAt] = useState(() => {
-    const d = new Date(event.startAt);
-    return d.toISOString().slice(0, 16);
-  });
-  const [endAt, setEndAt] = useState(() => {
-    if (!event.endAt) return "";
-    const d = new Date(event.endAt);
-    return d.toISOString().slice(0, 16);
-  });
+  const [startAt, setStartAt] = useState(() =>
+    event.startAt ? toLocalInputValue(event.startAt) : ""
+  );
+  
+  const [endAt, setEndAt] = useState(() =>
+    event.endAt ? toLocalInputValue(event.endAt) : ""
+  );
   const [maxRegistrations, setMaxRegistrations] = useState<string>(() => {
     return event.maxRegistrations != null ? String(event.maxRegistrations) : "";
   });
